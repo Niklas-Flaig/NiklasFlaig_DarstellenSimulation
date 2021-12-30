@@ -229,9 +229,6 @@ function newRainDrop(startPos, dropTime) {
 }
 
 
-
-function autoArea(key = "population", padding = 0) {
-  const largestValueForKey = data.getMaxValue(key);
   
 }
 
