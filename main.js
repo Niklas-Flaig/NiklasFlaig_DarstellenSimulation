@@ -9,6 +9,7 @@ $(function () {
   drawRainState(true);
   // drawMapState();
 });
+// window.addEventListener('resize', drawRainState);
 
 function drawMapState() {
   // get the relevant maxValues
@@ -50,22 +51,7 @@ function drawMapState() {
 
   });
 
-    // for (let i = 0; i < data.length; i++) {
-    //     let longitude = gmynd.map(data[i].longitude, -180, 180, 0, stageWidth);
-    //     let latitude = gmynd.map(data[i].latitude, -90, 90, stageHeight, 0);
-    //     const countryArea = gmynd.map(data[i].population, 1, maxPopulation, 30, 100);
-    //     // const countryRadius = Math.sqrt(countryArea / Math.PI);
-    //     const countryRadius = gmynd.circleRadius(countryArea);
-    //     let countryCircle = $("<div></div>");
-    //     countryCircle.addClass("circle");
-    //     countryCircle.css({
-    //         width: countryRadius * 2,
-    //         height: countryRadius * 2,
-    //         left: longitude - countryRadius,
-    //         top: latitude - countryRadius
-    //     });
-
-    //     countryCircle.data(data[i]);
+  //     countryCircle.data(data[i]);
 
     //     countryCircle.mouseover(function () {
     //         countryCircle.addClass("highlight");
@@ -73,8 +59,8 @@ function drawMapState() {
     //     });
 
     //     countryCircle.mouseout(function () {
-    //         countryCircle.removeClass("highlight");
-    //         // countryCircle.addClass("no-highlight-anymore");
+    //        // countryCircle.removeClass("highlight");
+    //         countryCircle.addClass("no-highlight-anymore");
     //     });
 
     //     stage.append(countryCircle);
