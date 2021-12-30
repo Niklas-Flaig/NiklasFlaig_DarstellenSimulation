@@ -413,30 +413,27 @@ function createWorkData() {
     let match = false;
 
     // 1.1 look through all the countrys in positionData for a match
-    positionData.forEach(positionDataCountry => {
+    const positionDataCountry = positionData.find(country => myDataCountry.alpha3Code === country.alpha3Code);
 
-      // if a match is found
-      if (myDataCountry.alpha3Code === positionDataCountry.alpha3Code) {
+    // if a match is found
+    if (positionDataCountry !== undefined) {
+      // 2. add those countrys, that match to the mergedData
+      // i know, that i could just copy the countrys from myData, but i want all items to be seen here, for editing purposes
+      mergedData.push({
+        countryName: myDataCountry.countryName, 
+        alpha3Code: myDataCountry.alpha3Code, 
+        happynesScore: myDataCountry.happynesScore, 
+        population: myDataCountry.population, 
+        shareOfAtheisticOrUnaffiliated: myDataCountry.shareOfAtheisticOrUnaffiliated, 
+        suicideRate: myDataCountry.suicideRate,
         
-        // 2. add those countrys, that match to the mergedData
-        // i know, that i could just copy the countrys from myData, but i want all items to be seen here, for editing purposes
-        mergedData.push({
-          countryName: myDataCountry.countryName, 
-          alpha3Code: myDataCountry.alpha3Code, 
-          happynesScore: myDataCountry.happynesScore, 
-          population: myDataCountry.population, 
-          shareOfAtheisticOrUnaffiliated: myDataCountry.shareOfAtheisticOrUnaffiliated, 
-          suicideRate: myDataCountry.suicideRate,
-          
-          latitude: positionDataCountry.latitude,
-          longitude: positionDataCountry.longitude,
-        });
-        match = true;
-      }
-    });
-
-    // 2.1. if no match is found: log those, that don't have a match in the datastructure
-    if (!match) console.log(`${myDataCountry.countryName} couldn't be matched, please check manually`);
+        latitude: positionDataCountry.latitude,
+        longitude: positionDataCountry.longitude,
+      });
+    } else {
+      // 2.1. if no match is found: log those, that don't have a match in the datastructure
+      console.log(`${myDataCountry.countryName} couldn't be matched, please check manually`); 
+    }
   });
   
   // 2.2. check, if all countrys got transfered
