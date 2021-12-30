@@ -1,4 +1,4 @@
-const stage = $("#canvas");
+let stage = $("#canvas");
 // const label = $("#mouseover-label");
 
 const colors = ["#BE5050", "#E3E04B"];
@@ -11,26 +11,26 @@ $(function () {
 });
 // window.addEventListener('resize', drawRainState);
 
-function drawMapState() {
+function drawMapState(autoArea = true) {
   // get the relevant maxValues
   const maxPopulation = data.getMaxValue("population");
   const minPopulation = data.getMinValue("population");
-
-  const maxArea = autoArea();
-
+  
+  // the area displays the population-size
+  let maxArea = 1000;
+  if (autoArea === true) maxArea = determinAutoArea();
+  
   // colors
   const maxHappynesScore = data.getMaxValue("happynesScore");
   const minHappynesScore = data.getMinValue("happynesScore");
-
+  
   data.forEach(country => {
     // the dots positon on the stage is the raw 
     // 1. shift position to positiv values; 2. scale the value to a the stagesSize
     const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth());
     const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0);
 
-    // the area displays the population-size
     const area = map(country.population, 0, maxPopulation, 0, maxArea);
-    
     const radius = Math.sqrt(area / Math.PI);
 
     // the color displays the happynesScore
@@ -66,6 +66,43 @@ function drawMapState() {
     //     stage.append(countryCircle);
     // }
 }
+
+
+function determinAutoArea(key = "population", padding = 0) {
+  const largestValueForKey = data.getMaxValue(key);
+  
+  // the biggest size the Area can get
+  let maxRadius = 100000;
+
+  for (let a = 0; a < data.length; a++) {
+    const countryA = data[a];
+    let maxPossibleRadiusForA = maxRadius;
+    
+    const yPosA = map(countryA.longitude + 180, 0, 360, 0, stage.innerWidth());
+    const xPosA = map(countryA.latitude + 90, 0, 180, stage.innerHeight(), 0);
+    
+    // only has to check against all countrys coming after
+    for (let b = a + 1; b < data.length; b++) {
+      const countryB = data[b];
+
+      const yPosB = map(countryB.longitude + 180, 0, 360, 0, stage.innerWidth());
+      const xPosB = map(countryB.latitude + 90, 0, 180, stage.innerHeight(), 0);
+
+      const distanceAB = Math.sqrt(Math.pow(yPosA - yPosB, 2) + Math.pow(xPosA - xPosB, 2));
+      // compare maxPossibleRadiusOnAForThisCombi against currently maxPossibleRadiusForA
+      let maxPossibleRadiusOnAForThisCombi = (distanceAB - padding) * ((countryA[key] + countryB[key]) / countryA[key]);
+      if (maxPossibleRadiusOnAForThisCombi < maxPossibleRadiusForA) maxPossibleRadiusForA = maxPossibleRadiusOnAForThisCombi;
+    }
+    
+    // compare final maxPossibleRadiusForA against current maxRadius
+    let maxRadiusNeededToFitA = (maxPossibleRadiusForA / countryA[key]) * largestValueForKey;
+    if (maxRadiusNeededToFitA < maxRadius) maxRadius = maxRadiusNeededToFitA;
+  }
+
+  return (Math.PI * Math.pow(maxRadius, 2));
+}
+
+
 
 function drawRainState(inSteps = false) {
   const maxHappynesScore = data.getMaxValue("happynesScore");
@@ -138,9 +175,6 @@ function drawRainState(inSteps = false) {
 }
 
 
-// newRainDrop({x: 100, y: 100});
-
-
 function newRainDrop(startPos, dropTime) {
 
   setTimeout(() => {
@@ -199,39 +233,8 @@ function newRainDrop(startPos, dropTime) {
 function autoArea(key = "population", padding = 0) {
   const largestValueForKey = data.getMaxValue(key);
   
-  // the biggest size the Area can get
-  let maxRadius = 100000;
-
-  for (let a = 0; a < data.length; a++) {
-    const countryA = data[a];
-    let maxPossibleRadiusForA = maxRadius;
-    
-    const yPosA = map(countryA.longitude + 180, 0, 360, 0, stage.innerWidth());
-    const xPosA = map(countryA.latitude + 90, 0, 180, stage.innerHeight(), 0);
-    
-    // only has to check against all countrys coming after
-    for (let b = a + 1; b < data.length; b++) {
-      const countryB = data[b];
-
-      const yPosB = map(countryB.longitude + 180, 0, 360, 0, stage.innerWidth());
-      const xPosB = map(countryB.latitude + 90, 0, 180, stage.innerHeight(), 0);
-
-      const distanceAB = Math.sqrt(Math.pow(yPosA - yPosB, 2) + Math.pow(xPosA - xPosB, 2));
-      // compare maxPossibleRadiusOnAForThisCombi against currently maxPossibleRadiusForA
-      let maxPossibleRadiusOnAForThisCombi = (distanceAB - padding) * ((countryA[key] + countryB[key]) / countryA[key]);
-      // if (countryA.countryName === "Israel" && countryB.countryName === "Palestinian Territories") console.log((distanceAB - padding) * (countryA[key] / (2 * (countryA[key] + countryB[key]))));
-      if (maxPossibleRadiusOnAForThisCombi < maxPossibleRadiusForA) maxPossibleRadiusForA = maxPossibleRadiusOnAForThisCombi;
-    }
-    
-    // compare final maxPossibleRadiusForA against current maxRadius
-    let maxRadiusNeededToFitA = (maxPossibleRadiusForA / countryA[key]) * largestValueForKey;
-    if (maxRadiusNeededToFitA < maxRadius) maxRadius = maxRadiusNeededToFitA;
-  }
-
-  // return maxArea
-  return (Math.PI * Math.pow(maxRadius, 2));
-  // return (maxRadius);
 }
+
 
 
 function map(value, minStart, maxStart, minGoal, maxGoal) {
