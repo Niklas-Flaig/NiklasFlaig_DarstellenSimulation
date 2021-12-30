@@ -38,6 +38,11 @@ body {
 .rainCountry {
     position: absolute;
     border-radius: 40%;
+    z-index: 2;
+}
+.rainDrop {
+    position: absolute;
+    z-index: 1;
 }
 
 .no-highlight-anymore {

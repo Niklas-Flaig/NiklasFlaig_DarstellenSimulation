@@ -137,9 +137,66 @@ function drawRainState(inSteps = false) {
       });
   
       stage.append(countryElement);
+
+      newRainDrop({x: ((xMax - 2 * padding) / data.length * a) + padding, y: 100});
     }
   }
 }
+
+
+// newRainDrop({x: 100, y: 100});
+
+
+function newRainDrop(startPos) {
+  
+  let rainDrop = $(`<div></div>`);
+  
+  rainDrop.addClass("rainDrop");
+  
+  rainDrop.css({
+    width: 4,
+    height: 2,
+    left: startPos.x,
+    top: startPos.y,
+    "background-color": "black",
+  });
+  
+  stage.append(rainDrop);
+
+  window.requestAnimationFrame(dropRainDrop);
+  
+  
+  let start, previousTimeStamp;
+  
+  function dropRainDrop(timestamp) {
+    // init
+    if (start === undefined) start = timestamp;
+  
+    // animation Progress
+    const time = timestamp - start;
+    
+    // animation
+    if (previousTimeStamp !== timestamp) {
+      // speed = 0.6 // constant
+      const speed = time * 0.001;
+      
+      rainDrop.css({
+        top: startPos.y + Math.min(time * speed, stage.innerHeight() - 200), // 200 = maximal endPos,
+        height: Math.round(2 + 12 * speed),
+      });
+    }
+
+    // Repeat the animation as long as time is 
+    if (time < 1050) {
+      previousTimeStamp = timestamp;
+      window.requestAnimationFrame(dropRainDrop);
+    } else { // if the animation is fullfilled delete the element
+      rainDrop.remove();
+    }
+  }
+}
+
+
 
 function autoArea(key = "population", padding = 0) {
   let largestValueForKey = data.getMaxValue(key);
