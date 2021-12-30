@@ -1,5 +1,5 @@
 const stage = $("#canvas");
-const label = $("#mouseover-label");
+// const label = $("#mouseover-label");
 
 const colors = ["#BE5050", "#E3E04B"];
 let data = createWorkData();
