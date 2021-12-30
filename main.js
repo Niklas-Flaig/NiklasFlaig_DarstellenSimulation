@@ -85,6 +85,9 @@ function drawRainState(inSteps = false) {
   const maxHappynesScore = data.getMaxValue("happynesScore");
   const minHappynesScore = data.getMinValue("happynesScore");
 
+  const maxSuicideRate = data.getMaxValue("suicideRate");
+  const minSuicideRate = data.getMinValue("suicideRate");
+
   if (!inSteps) {
     data.forEach(country => {
       // the dots positon on the stage is the raw 
@@ -138,7 +141,12 @@ function drawRainState(inSteps = false) {
   
       stage.append(countryElement);
 
-      newRainDrop({x: ((xMax - 2 * padding) / data.length * a) + padding, y: 100});
+      const dropTime = map(country.suicideRate, minSuicideRate, maxSuicideRate, 10000, 1000);
+
+      setTimeout(() => { // this first timeout makes it appear, as if the rain is just starting: very cool
+        newRainDrop({x: ((xMax - 2 * padding) / data.length * a) + padding, y: 100}, dropTime);
+      }, dropTime);
+      
     }
   }
 }
@@ -147,7 +155,11 @@ function drawRainState(inSteps = false) {
 // newRainDrop({x: 100, y: 100});
 
 
-function newRainDrop(startPos) {
+function newRainDrop(startPos, dropTime) {
+
+  setTimeout(() => {
+    newRainDrop({x: startPos.x, y: startPos.y}, dropTime);
+  }, dropTime);
   
   let rainDrop = $(`<div></div>`);
   
