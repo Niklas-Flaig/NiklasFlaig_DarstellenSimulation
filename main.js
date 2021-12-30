@@ -115,7 +115,8 @@ function drawRainState(inSteps = false) {
     
     data = sortFor("happynesScore");
 
-    const xMin = stage.innerWidth();
+    const padding = 20;
+
     const xMax = stage.innerWidth();
 
     for (let a = 0; a < data.length; a++) {
@@ -130,7 +131,7 @@ function drawRainState(inSteps = false) {
       countryElement.css({
         width: 8,
         height: 8,
-        left: xMax / data.length * a,
+        left: ((xMax - 2 * padding) / data.length * a) + padding,
         top: 100,
         "background-color": color,
       });
