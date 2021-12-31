@@ -40,7 +40,7 @@ function drawMapState(autoArea = true) {
     const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
 
     // create the div and 
-    let countryElement = $(`<div id="${country.alpha3Code}"></div>`);
+    let countryElement = $(`<div id="${country.countryName}"></div>`);
     countryElement.addClass("country");
     countryElement.css({
       width: radius * 2,
@@ -118,7 +118,7 @@ function drawRainState(inSteps = false) {
       const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
   
       // create the div and 
-      let countryElement = $(`<div id="${country.alpha3Code}"></div>`);
+      let countryElement = $(`<div id="${country.countryName}"></div>`);
       countryElement.addClass("rainCountry");
       countryElement.css({
         width: 1,
@@ -149,7 +149,7 @@ function drawRainState(inSteps = false) {
       const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
 
       // create the div
-      let countryElement = $(`<div id="${country.alpha3Code}"></div>`);
+      let countryElement = $(`<div id="${country.countryName}"></div>`);
       countryElement.addClass("rainCountry");
       countryElement.css({
         width: 8,
