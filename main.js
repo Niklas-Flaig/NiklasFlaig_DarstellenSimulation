@@ -233,7 +233,9 @@ function atheisticState(params) {
 
     const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
 
-    const populationAtheistic = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
+    let populationAtheistic = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
+    // when the percentage is 1(smallest possible value) we don't want the div to be shown
+    if (country.shareOfAtheisticOrUnaffiliated === 1) populationAtheistic = 0;
 
     let area = map(populationAtheistic, 0, maxPopulation, 0, maxArea);
     let radius = Math.sqrt(area / Math.PI);
