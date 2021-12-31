@@ -16,7 +16,7 @@ const minSuicideRate = getMinValue("suicideRate");
 
 
 $(function () {
-  atheisticState();
+  atheisticStateV2();
   // drawRainState(true);
   // drawMapState();
 });
@@ -272,44 +272,79 @@ function atheisticStateV1(params) {
 
 function atheisticStateV2(params) {
   const maxArea = 10000;
-  data.forEach(country => {
 
+  let lefts = [], rights = [];
+
+  data.forEach(country => {
     const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
 
-    let populationAtheistic = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
-    // when the percentage is 1(smallest possible value) we don't want the div to be shown
-    if (country.shareOfAtheisticOrUnaffiliated === 1) populationAtheistic = 0;
-
-    let area = map(populationAtheistic, 0, maxPopulation, 0, maxArea);
-    let radius = Math.sqrt(area / Math.PI);
-
     let elementLeft = $(`<div id="${country.countryName}_Left"></div>`);
-    let elementRigt = $(`<div id="${country.countryName}_Rigt"></div>`);
-
-
     elementLeft.addClass("country");
+    
+    elementLeft.partialPopulation = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
+    // when the percentage is 1(smallest possible value) we don't want the div to be shown
+    if (country.shareOfAtheisticOrUnaffiliated === 1) elementLeft.partialPopulation = 0;
+    elementLeft.area = map(elementLeft.partialPopulation, 0, maxPopulation, 0, maxArea);
+    elementLeft.radius = Math.sqrt(elementLeft.area / Math.PI);
+    elementLeft.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
+    elementLeft.xPos = stage.innerWidth() * 0.7;
+    
     elementLeft.css({
-      width: 2 * radius,
-      height: 2 * radius,
-      left: stage.innerWidth() * 0.3 - radius,
-      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50) - radius,
+      width: 2 * elementLeft.radius,
+      height: 2 * elementLeft.radius,
+      left: elementLeft.xPos - elementLeft.radius,
+      top: elementLeft.yPos- elementLeft.radius,
       "background-color": color,
     });
 
-    area = map(country.population - populationAtheistic, 0, maxPopulation, 0, maxArea);
-    radius = Math.sqrt(area / Math.PI);
+    lefts.push(elementLeft);
 
+
+    let elementRigt = $(`<div id="${country.countryName}_Rigt"></div>`);
     elementRigt.addClass("country");
+
+    elementRigt.partialPopulation = country.population * 0.01 * (100 - country.shareOfAtheisticOrUnaffiliated);
+    elementRigt.area = map(elementRigt.partialPopulation, 0, maxPopulation, 0, maxArea);
+    elementRigt.radius = Math.sqrt(elementRigt.area / Math.PI);
+    elementRigt.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
+    elementRigt.xPos = stage.innerWidth() * 0.7;
+
     elementRigt.css({
-      width: 2 * radius,
-      height: 2 * radius,
-      left: stage.innerWidth() * 0.7 - radius,
-      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50) - radius,
+      width: 2 * elementRigt.radius,
+      height: 2 * elementRigt.radius,
+      left: elementRigt.xPos - elementRigt.radius,
+      top: elementRigt.yPos - elementRigt.radius,
       "background-color": color,
     });
 
-    stage.append(elementLeft);
-    stage.append(elementRigt);
+    rights.push(elementRigt);
+  });
+
+
+  const padding = 0;
+
+  // überarbeiten      start with the second item!!!
+  for (let a = 1; a < lefts.length; a++) {
+    // move direction (+ or -)
+    let moveDir = 1;
+    if (Math.random() < 0.5) moveDir = -1;
+
+    let thisElement = lefts[a]; 
+    let prevElement = lefts[a - 1];
+
+    const distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+
+    let rest;
+    // while (distance - (thisElement.radius + prevElement.radius) < padding) {
+      // rest = distance - (thisElement.radius + prevElement.radius);
+      
+    // }
+
+  }
+  
+  
+  rights.forEach(element => {
+    stage.append(element);
   });
 }
 
