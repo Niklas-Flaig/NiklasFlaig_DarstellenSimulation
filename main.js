@@ -249,7 +249,7 @@ function atheisticState(params) {
       width: 2 * radius,
       height: 2 * radius,
       left: stage.innerWidth() * 0.3 - radius,
-      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, 0 + 20, stage.innerHeight() - 20) - radius,
+      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50) - radius,
       "background-color": color,
     });
 
@@ -260,8 +260,8 @@ function atheisticState(params) {
     elementRigt.css({
       width: 2 * radius,
       height: 2 * radius,
-      left: stage.innerWidth() * 0.6 - radius,
-      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, 0 + 20, stage.innerHeight() - 20) - radius,
+      left: stage.innerWidth() * 0.7 - radius,
+      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50) - radius,
       "background-color": color,
     });
 
