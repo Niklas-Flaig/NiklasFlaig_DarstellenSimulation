@@ -16,7 +16,8 @@ const minSuicideRate = getMinValue("suicideRate");
 
 
 $(function () {
-  drawRainState(true);
+  atheisticState();
+  // drawRainState(true);
   // drawMapState();
 });
 // window.addEventListener('resize', drawRainState);
@@ -226,7 +227,45 @@ function newRainDrop(startPos, dropTime) {
 }
 
 
-  
+function atheisticState(params) {
+  const maxArea = 1000;
+  data.forEach(country => {
+
+    const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
+
+    const populationAtheistic = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
+
+    let area = map(populationAtheistic, 0, maxPopulation, 0, maxArea);
+    let radius = Math.sqrt(area / Math.PI);
+
+    let elementLeft = $(`<div id="${country.countryName}_Left"></div>`);
+    let elementRigt = $(`<div id="${country.countryName}_Rigt"></div>`);
+
+
+    elementLeft.addClass("country");
+    elementLeft.css({
+      width: 2 * radius,
+      height: 2 * radius,
+      left: stage.innerWidth() * 0.3 - radius,
+      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, 0 + 20, stage.innerHeight() - 20) - radius,
+      "background-color": color,
+    });
+
+    area = map(country.population - populationAtheistic, 0, maxPopulation, 0, maxArea);
+    radius = Math.sqrt(area / Math.PI);
+
+    elementRigt.addClass("country");
+    elementRigt.css({
+      width: 2 * radius,
+      height: 2 * radius,
+      left: stage.innerWidth() * 0.6 - radius,
+      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, 0 + 20, stage.innerHeight() - 20) - radius,
+      "background-color": color,
+    });
+
+    stage.append(elementLeft);
+    stage.append(elementRigt);
+  });
 }
 
 
