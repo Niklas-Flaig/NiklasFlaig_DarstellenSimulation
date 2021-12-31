@@ -4,6 +4,16 @@ let stage = $("#canvas");
 const colors = ["#BE5050", "#E3E04B"];
 let data = createWorkData();
 
+// get the relevant maxValues
+const maxPopulation = getMaxValue("population");
+const minPopulation = getMinValue("population");
+
+const maxHappynesScore = getMaxValue("happynesScore");
+const minHappynesScore = getMinValue("happynesScore");
+
+const maxSuicideRate = getMaxValue("suicideRate");
+const minSuicideRate = getMinValue("suicideRate");
+
 
 $(function () {
   drawRainState(true);
@@ -12,17 +22,10 @@ $(function () {
 // window.addEventListener('resize', drawRainState);
 
 function drawMapState(autoArea = true) {
-  // get the relevant maxValues
-  const maxPopulation = data.getMaxValue("population");
-  const minPopulation = data.getMinValue("population");
   
   // the area displays the population-size
   let maxArea = 1000;
   if (autoArea === true) maxArea = determinAutoArea();
-  
-  // colors
-  const maxHappynesScore = data.getMaxValue("happynesScore");
-  const minHappynesScore = data.getMinValue("happynesScore");
   
   data.forEach(country => {
     // the dots positon on the stage is the raw 
@@ -105,12 +108,6 @@ function determinAutoArea(key = "population", padding = 0) {
 
 
 function drawRainState(inSteps = false) {
-  const maxHappynesScore = data.getMaxValue("happynesScore");
-  const minHappynesScore = data.getMinValue("happynesScore");
-
-  const maxSuicideRate = data.getMaxValue("suicideRate");
-  const minSuicideRate = data.getMinValue("suicideRate");
-
   if (!inSteps) {
     data.forEach(country => {
       // the dots positon on the stage is the raw 
@@ -243,7 +240,7 @@ function getColor(value, min, max) {
 }
 
 // will find the biggest value of a key in data
-data.getMaxValue = (key) => {
+function getMaxValue (key) {
   let maxValue = 0;
   // check forEach country if it holds a higher value than the current one
   data.forEach(country => {
@@ -257,7 +254,7 @@ data.getMaxValue = (key) => {
 };
 
 // will find the smallest value of a key in data
-data.getMinValue = (key) => {
+function getMinValue (key) {
   let minValue = data[0][key];
   // check forEach country if it holds a lower value than the current one
   data.forEach(country => {
