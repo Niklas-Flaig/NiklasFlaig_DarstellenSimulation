@@ -17,8 +17,8 @@ const minSuicideRate = getMinValue("suicideRate");
 
 $(function () {
   // atheisticStateV2();
-  // drawRainState(true);
-  drawMapState();
+  drawRainState(true);
+  // drawMapState();
 });
 // window.addEventListener('resize', drawRainState);
 
@@ -155,7 +155,7 @@ function drawRainState(inSteps = false) {
       countryElement.css({
         width: 8,
         height: 8,
-        left: ((xMax - 2 * padding) / data.length * a) + padding,
+        left: ((xMax - 2 * padding) / data.length * a) + padding - 4, // -4 = width / 2
         top: 100,
         "background-color": color,
       });
@@ -180,23 +180,32 @@ function newRainDrop(startPos, dropTime) {
   }, dropTime);
   
   let rainDrop = $(`<div></div>`);
-  
   rainDrop.addClass("rainDrop");
-  
   rainDrop.css({
     width: 4,
     height: 2,
-    left: startPos.x,
+    left: startPos.x - 2,
     top: startPos.y,
     "background-color": "black",
   });
-  
   stage.append(rainDrop);
+
+  let rainDropShadow = $("<div></div>");
+  rainDropShadow.addClass("rainDropShadow");
+  rainDropShadow.css({
+    width: 4,
+    height: 2,
+    left: startPos.x - 2,
+    top: startPos.y,
+    "background-color": "gray"
+  });
+  stage.append(rainDropShadow);
+
+  let start, previousTimeStamp;
+
 
   window.requestAnimationFrame(dropRainDrop);
   
-  
-  let start, previousTimeStamp;
   
   function dropRainDrop(timestamp) {
     // init
@@ -214,14 +223,22 @@ function newRainDrop(startPos, dropTime) {
         top: startPos.y + Math.min(time * speed, stage.innerHeight() - 200), // 200 = maximal endPos,
         height: Math.round(2 + 12 * speed),
       });
+
+      rainDropShadow.css({
+        height: Math.min(time * speed, stage.innerHeight() - 200),
+        opacity: 100 / time
+      });
     }
 
     // Repeat the animation as long as time is 
     if (time < 1050) {
       previousTimeStamp = timestamp;
       window.requestAnimationFrame(dropRainDrop);
-    } else { // if the animation is fullfilled delete the element
+    } else if (1050 <= time && time <= 2000) { 
       rainDrop.remove();
+      window.requestAnimationFrame(dropRainDrop);
+    } else { // if the animation is fullfilled delete the element
+      rainDropShadow.remove();
     }
   }
 }
