@@ -17,7 +17,7 @@ const minSuicideRate = getMinValue("suicideRate");
 
 $(function () {
   // atheisticStateV2();
-  drawRainState(true);
+  // drawRainState(true);
   // drawMapState();
 });
 // window.addEventListener('resize', drawRainState);
@@ -413,17 +413,17 @@ function drawPoint(x, y) {
     "background-color": "green",
     "z-index": 5, 
   });
-  // stage.append(elem);
+  stage.append(elem);
 }
 
 let circ1 = {
   radius: 50,
-  xPos: 400,
+  xPos: 300,
   yPos: 470,
 };
 let circ2 = {
   radius: 50,
-  xPos: 440,
+  xPos: 310,
   yPos: 540,
 };
 
@@ -463,38 +463,20 @@ circ2elem.css({
 
 // determine a new TouchPoint
 let touchPoint = determineWishedTouchPoint(circ1, circ2);
-      
-// determine the x coord of circ1 (at the touchPoints height)
-let circ1sX = circ1.xPos + Math.sqrt(circ1.radius + Math.pow(touchPoint.y - circ1.yPos, 2));
-console.log("hallo" + circ1sX);
-// if this element is left from the touchpoint we have to use x2 (the right value for y)
-if (circ1.xPos < touchPoint.x) circ1sX -= circ1.xPos - circ1sX;
 
-
-
-console.log(circ1sX);
-// let this element move the right amount to touch the touchpoint
-circ1.xPos += circ1.xPos - circ1sX;
-drawPoint(circ1sX,touchPoint.y);
-// circ1.xPos = circ1.xPos - (circ1sX - touchPoint.x);
+circ1.xPos = moveCircleInX({radius: circ1.radius, x: circ1.xPos, y: circ1.yPos}, touchPoint);
 
 // update the css
 circ1elem.css({
-  left: circ1.xPos
+  left: circ1.xPos - circ1.radius
 });
 
 
-// do the same for the circ2
-// determine the x coord of thisElement (at the touchPoints height)
-let circ2sX = circ2.xPos + Math.sqrt(circ2.radius + Math.pow(touchPoint.y - circ2.yPos, 2));
-
-if (circ2.xPos < touchPoint.x) circ2sX -= circ2.xPos - circ2sX;
-
+circ2.xPos = moveCircleInX({radius: circ2.radius, x: circ2.xPos, y: circ2.yPos}, touchPoint);
 
 // let this element move the right amount to touch the touchpoint
-circ2.xPos += circ2.xPos - circ2sX;
 circ2elem.css({
-  left: circ2.xPos
+  left: circ2.xPos - circ2.radius
 });
 
 pointPoint.css({
@@ -506,9 +488,33 @@ pointPoint.css({
   "z-index": 3, 
 });
 
-// stage.append(circ1elem);
-// stage.append(circ2elem);
-// stage.append(pointPoint);
+stage.append(circ1elem);
+stage.append(circ2elem);
+stage.append(pointPoint);
+/*
+  this function moves the circles, that are given to this function in x-direction
+  to touch a specific point
+
+  the direction, that the circle is moved in, depends on the position of the circle
+  relative to the point: 
+    circle(s center) sits to the points right => move the circle to the right
+*/
+function moveCircleInX(circle = {radius: 0, x: 0, p: 0}, point = {x: 0, y: 0}) {
+  // determine the x coord of the circle (at the points height)
+  let circlesXatPointsHeight;
+  // because a circle has 2 x values for most y values: look, wich one is needed
+    // when the circle is right of the point
+  if (circle.x > point.x) circlesXatPointsHeight = circle.x - Math.sqrt(circle.radius + Math.pow(point.y - circle.y, 2));
+    // when the circle is left of the point
+  if (circle.x < point.x) circlesXatPointsHeight = circle.x + Math.sqrt(circle.radius + Math.pow(point.y - circle.y, 2));
+
+
+  // move the circle in x-direction (the difference of the determined x-value of the circle and the points x-value)
+  circle.x -= circlesXatPointsHeight - point.x;
+
+  // return the new circles center position
+  return circle.x;
+}
 
 /* 
   this function determines the crossing point of two lines
