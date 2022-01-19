@@ -292,26 +292,37 @@ function atheisticStateV2(params) {
 
   let lefts = [], rights = [];
 
-  data.forEach(country => {
-    const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
+  /* create two elements for each country
+      one goes to the right (symbols the non-atheistic part of the countrys Population)
+      the other to the left (symbols the atheistic part)
+      
+    they share the same height and color => displaying the happyness in the country
 
+    the size of the circles display the amount of persons
+  */
+  data.forEach(country => {
+
+    // the atheistic part
     let elementLeft = $(`<div id="${country.countryName}_Left"></div>`);
     elementLeft.addClass("country");
-    
+
+    // determine the atheistic population in this country
     elementLeft.partialPopulation = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
-    // when the percentage is 1(smallest possible value) we don't want the div to be shown
+    // when the percentage is 1(smallest possible value) we don't want the div to be shown at all
     if (country.shareOfAtheisticOrUnaffiliated === 1) elementLeft.partialPopulation = 0;
+    
     elementLeft.area = map(elementLeft.partialPopulation, 0, maxPopulation, 0, maxArea);
     elementLeft.radius = Math.sqrt(elementLeft.area / Math.PI);
     elementLeft.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
     elementLeft.xPos = stage.innerWidth() * 0.3;
+    elementLeft.color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
     
     elementLeft.css({
       width: 2 * elementLeft.radius,
       height: 2 * elementLeft.radius,
       left: elementLeft.xPos - elementLeft.radius,
       top: elementLeft.yPos- elementLeft.radius,
-      "background-color": color,
+      "background-color": elementLeft.color,
     });
 
     lefts.push(elementLeft);
@@ -325,13 +336,14 @@ function atheisticStateV2(params) {
     elementRigt.radius = Math.sqrt(elementRigt.area / Math.PI);
     elementRigt.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
     elementRigt.xPos = stage.innerWidth() * 0.7;
+    elementRigt.color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
 
     elementRigt.css({
       width: 2 * elementRigt.radius,
       height: 2 * elementRigt.radius,
       left: elementRigt.xPos - elementRigt.radius,
       top: elementRigt.yPos - elementRigt.radius,
-      "background-color": color,
+      "background-color": elementRigt.color,
     });
 
     rights.push(elementRigt);
@@ -355,10 +367,10 @@ function atheisticStateV2(params) {
 
     const distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
 
-    console.log(":  " + distance);
-
+    // when the distance is smaller than the combined radius the circles either cross or one inherits the other
     if (distance - padding < thisElement.radius + prevElement.radius) {
 
+      // if the center of one circle sits inside the 
 
       // determine a new TouchPoint
       let touchPoint = determineWishedTouchPoint(thisElement, prevElement);
@@ -424,7 +436,7 @@ let circ1 = {
 let circ2 = {
   radius: 50,
   xPos: 310,
-  yPos: 540,
+  yPos: 480,
 };
 
 let res = determineWishedTouchPoint(circ1, circ2);
