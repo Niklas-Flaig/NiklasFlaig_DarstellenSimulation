@@ -504,9 +504,10 @@ function moveCircleInX(circle = {radius: 0, x: 0, p: 0}, point = {x: 0, y: 0}) {
   let circlesXatPointsHeight;
   // because a circle has 2 x values for most y values: look, wich one is needed
     // when the circle is right of the point
-  if (circle.x > point.x) circlesXatPointsHeight = circle.x - Math.sqrt(circle.radius + Math.pow(point.y - circle.y, 2));
+  if (circle.x > point.x) circlesXatPointsHeight = circle.x - Math.sqrt(Math.pow(circle.radius, 2) - Math.pow(point.y - circle.y, 2));
     // when the circle is left of the point
-  if (circle.x < point.x) circlesXatPointsHeight = circle.x + Math.sqrt(circle.radius + Math.pow(point.y - circle.y, 2));
+  if (circle.x < point.x) circlesXatPointsHeight = circle.x + Math.sqrt(Math.pow(circle.radius, 2) - Math.pow(point.y - circle.y, 2));
+  // drawPoint(circlesXatPointsHeight, point.y);
 
 
   // move the circle in x-direction (the difference of the determined x-value of the circle and the points x-value)
