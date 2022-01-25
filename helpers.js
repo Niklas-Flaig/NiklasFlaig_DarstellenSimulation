@@ -73,3 +73,40 @@ function sortFor(key, descending = false) {
 
   return newData;
 }
+
+/*
+  this funciton determines the values to move the map
+  so it is centered
+*/
+function moveMap(maxRadius) {
+  let right = stage.innerWidth() / 2;
+  let left = stage.innerWidth() / 2;
+  let up = stage.innerHeight() / 2;
+  let down = stage.innerHeight() / 2;
+
+  data.forEach(country => {
+    const thisRadius = map(country.population, 0, maxPopulation, 0, maxRadius);
+    
+    let currentLeft = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) - thisRadius;
+    if (currentLeft < left) left = currentLeft;
+
+    let currentRight = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + thisRadius;
+    if (currentRight > right) right = currentRight;
+
+    let currentUp = map(country.latitude + 180, 0, 360, stage.innerHeight(), 0) - thisRadius;
+    if (currentUp < up) up = currentUp;
+
+    let currentDown = map(country.latitude + 180, 0, 360, stage.innerHeight(), 0) + thisRadius;
+    if (currentDown > down) down = currentDown;
+  });
+
+  // add this value to the xPosition of all countrys, to center the map (in xDirection)
+  let moveStageInX = (stage.innerWidth() - right - left) / 2;
+  // add this value to the yPosition of all countrys, to center the map (in yDirection)
+  let moveStageInY = (stage.innerHeight() - down - up) / 2;
+
+  return {
+    x: moveStageInX,
+    y: moveStageInY
+  };
+}

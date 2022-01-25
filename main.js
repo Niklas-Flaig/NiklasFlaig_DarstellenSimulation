@@ -27,12 +27,16 @@ function drawMapState(autoArea = true) {
   // the area displays the population-size
   let maxRadius = 1000;
   if (autoArea === true) maxRadius = determinAutoRadius();
-  
+
+
+  let move = moveMap(maxRadius);
+
+
   data.forEach(country => {
     // the dots positon on the stage is the raw 
     // 1. shift position to positiv values; 2. scale the value to a the stagesSize
-    const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth());
-    const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0);
+    const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + move.x;
+    const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0) + move.y;
 
     // const area = map(country.population, 0, maxPopulation, 0, maxArea);
     // const radius = Math.sqrt(area / Math.PI);
