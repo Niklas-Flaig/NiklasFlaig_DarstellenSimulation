@@ -25,8 +25,8 @@ $(function () {
 function drawMapState(autoArea = true) {
   
   // the area displays the population-size
-  let maxArea = 1000;
-  if (autoArea === true) maxArea = determinAutoArea();
+  let maxRadius = 1000;
+  if (autoArea === true) maxRadius = determinAutoRadius();
   
   data.forEach(country => {
     // the dots positon on the stage is the raw 
@@ -34,8 +34,9 @@ function drawMapState(autoArea = true) {
     const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth());
     const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0);
 
-    const area = map(country.population, 0, maxPopulation, 0, maxArea);
-    const radius = Math.sqrt(area / Math.PI);
+    // const area = map(country.population, 0, maxPopulation, 0, maxArea);
+    // const radius = Math.sqrt(area / Math.PI);
+    const radius = map(country.population, 0, maxPopulation, 0, maxRadius);
 
     // the color displays the happynesScore
     const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
@@ -72,19 +73,18 @@ function drawMapState(autoArea = true) {
 }
 
 
-function determinAutoArea(key = "population", padding = 0) {
-  const largestValueForKey = data.getMaxValue(key);
-  
+// still has some problems e.g.Niger and Nigeria
+function determinAutoRadius(key = "population", padding = 0) {  
   // the biggest size the Area can get
   let maxRadius = 100000;
 
   for (let a = 0; a < data.length; a++) {
     const countryA = data[a];
-    let maxPossibleRadiusForA = maxRadius;
     
     const yPosA = map(countryA.longitude + 180, 0, 360, 0, stage.innerWidth());
     const xPosA = map(countryA.latitude + 90, 0, 180, stage.innerHeight(), 0);
     
+    let maxPossibleRadiusForA = maxRadius; // stores the currently biggest size for the Radius of A
     // only has to check against all countrys coming after
     for (let b = a + 1; b < data.length; b++) {
       const countryB = data[b];
@@ -92,18 +92,22 @@ function determinAutoArea(key = "population", padding = 0) {
       const yPosB = map(countryB.longitude + 180, 0, 360, 0, stage.innerWidth());
       const xPosB = map(countryB.latitude + 90, 0, 180, stage.innerHeight(), 0);
 
-      const distanceAB = Math.sqrt(Math.pow(yPosA - yPosB, 2) + Math.pow(xPosA - xPosB, 2));
+      /* 
+        the distance has to be rounded down, because the elements final Position gets rounded too
+        theoretically all values have to be rouunded, always meh
+      */
+      const distanceAB = Math.floor(Math.sqrt(Math.pow(yPosA - yPosB, 2) + Math.pow(xPosA - xPosB, 2)));
       // compare maxPossibleRadiusOnAForThisCombi against currently maxPossibleRadiusForA
       let maxPossibleRadiusOnAForThisCombi = (distanceAB - padding) * ((countryA[key] + countryB[key]) / countryA[key]);
       if (maxPossibleRadiusOnAForThisCombi < maxPossibleRadiusForA) maxPossibleRadiusForA = maxPossibleRadiusOnAForThisCombi;
     }
     
     // compare final maxPossibleRadiusForA against current maxRadius
-    let maxRadiusNeededToFitA = (maxPossibleRadiusForA / countryA[key]) * largestValueForKey;
+    let maxRadiusNeededToFitA = (maxPossibleRadiusForA / countryA[key]) * maxPopulation;
     if (maxRadiusNeededToFitA < maxRadius) maxRadius = maxRadiusNeededToFitA;
   }
 
-  return (Math.PI * Math.pow(maxRadius, 2));
+  return maxRadius; // returns radius    (Math.PI * Math.pow(maxRadius, 2))
 }
 
 
