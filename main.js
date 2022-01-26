@@ -19,6 +19,9 @@ const minSuicideRate = getMinValue("suicideRate");
 
 
 $(function () {
+  filterData("population", 0, 100);
+  console.log(data);
+
   // atheisticState();
   // drawRainState(true);
   drawMapState();
