@@ -19,9 +19,9 @@ const minSuicideRate = getMinValue("suicideRate");
 
 
 $(function () {
-  // atheisticStateV2();
+  atheisticState();
   // drawRainState(true);
-  drawMapState();
+  // drawMapState();
 });
 // window.addEventListener('resize', drawRainState);
 
@@ -79,6 +79,9 @@ function drawMapState(autoArea = true) {
     // }
 }
 
+function drawMapStateV2() {
+  
+}
 
 // still has some problems e.g.Niger and Nigeria
 function determinAutoRadius(key = "population", padding = 0) {  
@@ -275,51 +278,7 @@ function newRainDrop(startPos, dropTime) {
   }
 }
 
-
-function atheisticStateV1(params) {
-  const maxArea = 10000;
-  data.forEach(country => {
-
-    const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
-
-    let populationAtheistic = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
-    // when the percentage is 1(smallest possible value) we don't want the div to be shown
-    if (country.shareOfAtheisticOrUnaffiliated === 1) populationAtheistic = 0;
-
-    let area = map(populationAtheistic, 0, maxPopulation, 0, maxArea);
-    let radius = Math.sqrt(area / Math.PI);
-
-    let elementLeft = $(`<div id="${country.countryName}_Left"></div>`);
-    let elementRigt = $(`<div id="${country.countryName}_Rigt"></div>`);
-
-
-    elementLeft.addClass("country");
-    elementLeft.css({
-      width: 2 * radius,
-      height: 2 * radius,
-      left: stage.innerWidth() * 0.3 - radius,
-      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50) - radius,
-      "background-color": color,
-    });
-
-    area = map(country.population - populationAtheistic, 0, maxPopulation, 0, maxArea);
-    radius = Math.sqrt(area / Math.PI);
-
-    elementRigt.addClass("country");
-    elementRigt.css({
-      width: 2 * radius,
-      height: 2 * radius,
-      left: stage.innerWidth() * 0.7 - radius,
-      top: map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50) - radius,
-      "background-color": color,
-    });
-
-    stage.append(elementLeft);
-    stage.append(elementRigt);
-  });
-}
-
-function atheisticStateV2(params) {
+function atheisticState(params) {
   const maxArea = 10000;
 
   let lefts = [], rights = [];
@@ -377,6 +336,8 @@ function atheisticStateV2(params) {
   for (let a = 1; a < rights.length; a++) {
     
     let thisElement = rights[a];
+    
+    let madeChanges = false;
 
     for (let b = a - 1; b >= 0; b--) {
       let prevElement = rights[b];
@@ -390,10 +351,10 @@ function atheisticStateV2(params) {
           thisElement.xPos ++;
         }
       }
-
+      
       // determine the distancebetween the circles centers
       const distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
-
+      
       /* if one circle sits inside the other
           move the smaller circle to the edge of the bigger circle
           this is also brute force, not a smart function :(
@@ -407,7 +368,6 @@ function atheisticStateV2(params) {
         }
       }
 
-      let madeChanges = false;
 
       // when the distance is smaller than the combined radius the circles either cross or one inherits the other
       if (distance - padding < thisElement.radius + prevElement.radius) {
@@ -426,12 +386,13 @@ function atheisticStateV2(params) {
         console.log(consol + "----" + thisElement.xPos + ":" + prevElement.xPos);
         thisElement.xPos = Math.round(thisElement.xPos);
         prevElement.xPos = Math.round(prevElement.xPos);
+        
         madeChanges = true;
       }
     }
 
     // then go back to the prev element and check against their prev element
-    // if (madeChanges) a -= 2;
+    if (madeChanges) a = 1;
 
     // if (a < 1) a = 1;
   }
