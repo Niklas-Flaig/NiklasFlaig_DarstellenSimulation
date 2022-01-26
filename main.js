@@ -1,7 +1,10 @@
 let stage = $("#canvas");
 // const label = $("#mouseover-label");
 
-const colors = ["#BE5050", "#E3E04B"];
+// const colors = ["#BE5050", "#E3E04B"];
+// const colors = ["#BE5050", "#97E34B"];
+// const colors = ["#C1374F", "#E3E04B"];
+const colors = ["#865353", "#A6DB10"];
 let data = createWorkData();
 
 // get the relevant maxValues
@@ -18,7 +21,7 @@ const minSuicideRate = getMinValue("suicideRate");
 $(function () {
   // atheisticStateV2();
   // drawRainState(true);
-  // drawMapState();
+  drawMapState();
 });
 // window.addEventListener('resize', drawRainState);
 
@@ -209,6 +212,19 @@ function newRainDrop(startPos, dropTime) {
   });
   stage.append(rainDropShadow);
 
+  let countryOpac = $(`<div></div>`);
+  countryOpac.addClass("rainCountry");
+  countryOpac.css({
+    width: 8,
+      height: 8,
+      left: startPos.x - 4, // -4 = width / 2
+      top: 100,
+      "background-color": "#181818",
+  });
+  stage.append(countryOpac);
+
+
+
   let start, previousTimeStamp;
 
 
@@ -228,15 +244,22 @@ function newRainDrop(startPos, dropTime) {
       const speed = time * 0.001;
       
       rainDrop.css({
-        top: startPos.y + Math.min(time * speed, stage.innerHeight() - 200), // 200 = maximal endPos,
+        top: Math.min(startPos.y + time * speed, stage.innerHeight() - Math.round(2 + 12 * speed)), // 200 = maximal endPos,
         height: Math.round(2 + 12 * speed),
       });
 
       rainDropShadow.css({
-        height: Math.min(time * speed, stage.innerHeight() - 200),
+        height: Math.min(time * speed, stage.innerHeight() - startPos.y),
+        opacity: 100 / time
+      });
+
+      countryOpac.css({
         opacity: 100 / time
       });
     }
+
+
+    
 
     // Repeat the animation as long as time is 
     if (time < 1050) {
@@ -247,6 +270,7 @@ function newRainDrop(startPos, dropTime) {
       window.requestAnimationFrame(dropRainDrop);
     } else { // if the animation is fullfilled delete the element
       rainDropShadow.remove();
+      countryOpac.remove();
     }
   }
 }
@@ -311,113 +335,133 @@ function atheisticStateV2(params) {
   data.forEach(country => {
 
     // the atheistic part
-    let elementLeft = $(`<div id="${country.countryName}_Left"></div>`);
-    elementLeft.addClass("country");
+    let elementLeft ={};
 
     // determine the atheistic population in this country
     elementLeft.partialPopulation = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
     // when the percentage is 1(smallest possible value) we don't want the div to be shown at all
-    if (country.shareOfAtheisticOrUnaffiliated === 1) elementLeft.partialPopulation = 0;
-    
+    // if (country.shareOfAtheisticOrUnaffiliated === 1) elementLeft.partialPopulation = 0;
+
+    elementLeft.countryName = country.countryName;
     elementLeft.area = map(elementLeft.partialPopulation, 0, maxPopulation, 0, maxArea);
     elementLeft.radius = Math.sqrt(elementLeft.area / Math.PI);
     elementLeft.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
-    elementLeft.xPos = stage.innerWidth() * 0.3;
+    elementLeft.xPos = 300;
     elementLeft.color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
-    
-    elementLeft.css({
-      width: 2 * elementLeft.radius,
-      height: 2 * elementLeft.radius,
-      left: elementLeft.xPos - elementLeft.radius,
-      top: elementLeft.yPos- elementLeft.radius,
-      "background-color": elementLeft.color,
-    });
 
     lefts.push(elementLeft);
 
 
-    let elementRigt = $(`<div id="${country.countryName}_Rigt"></div>`);
-    elementRigt.addClass("country");
+    let elementRigt = {};
 
     elementRigt.partialPopulation = country.population * 0.01 * (100 - country.shareOfAtheisticOrUnaffiliated);
+    elementRigt.countryName = country.countryName;
     elementRigt.area = map(elementRigt.partialPopulation, 0, maxPopulation, 0, maxArea);
     elementRigt.radius = Math.sqrt(elementRigt.area / Math.PI);
     elementRigt.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
     elementRigt.xPos = stage.innerWidth() * 0.7;
     elementRigt.color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
 
-    elementRigt.css({
-      width: 2 * elementRigt.radius,
-      height: 2 * elementRigt.radius,
-      left: elementRigt.xPos - elementRigt.radius,
-      top: elementRigt.yPos - elementRigt.radius,
-      "background-color": elementRigt.color,
-    });
-
     rights.push(elementRigt);
   });
 
 
   const padding = 0;
+  
 
-  // überarbeiten      start with the second item!!!
-  for (let a = 1; a < lefts.length; a++) {
-    // move direction (+ or -)
-    let moveDir = 1;
-    if (Math.random() < 0.5) moveDir = -1;
+  /*
+    now check for ell elements, if they touch, and if they do, adapt their xPos
+    start with the second Item, because you cant compare the first element against anything
+    compare the current element against all previous
+  */
+  for (let a = 1; a < rights.length; a++) {
+    
+    let thisElement = rights[a];
 
-    let thisElement = lefts[a]; 
-    let prevElement = lefts[a - 1];
+    for (let b = a - 1; b >= 0; b--) {
+      let prevElement = rights[b];
 
-    // (when they are stacked onto each other move one initial pixel)
-    if (thisElement.xPos === prevElement.xPos) thisElement.xPos += moveDir;
+      // when the both circles center share the same x Position
+      // move this Element a intitial Pixel in a random direction
+      if (thisElement.xPos === prevElement.xPos) {
+        if (Math.random() < 0.5) {
+          thisElement.xPos --;
+        } else {
+          thisElement.xPos ++;
+        }
+      }
 
+      // determine the distancebetween the circles centers
+      const distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
 
-    const distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+      /* if one circle sits inside the other
+          move the smaller circle to the edge of the bigger circle
+          this is also brute force, not a smart function :(
+        */
+      if (distance + thisElement.radius <= prevElement.radius || distance + prevElement.radius <= thisElement.radius) {
+        // when the smaller circles center is left of the bigger ones
+        if (thisElement.xPos < prevElement.xPos) {
+          thisElement.xPos = prevElement.xPos - prevElement.radius;
+        } else if (thisElement.xPos > prevElement.xPos) { // when the smaller circles center is left of the bigger ones
+          thisElement.xPos = prevElement.xPos + prevElement.radius;
+        }
+      }
 
-    // when the distance is smaller than the combined radius the circles either cross or one inherits the other
-    if (distance - padding < thisElement.radius + prevElement.radius) {
+      let madeChanges = false;
 
-      // if the center of one circle sits inside the 
-
-      // determine a new TouchPoint
-      let touchPoint = determineWishedTouchPoint(thisElement, prevElement);
-      
-      // determine the x coord of thisElement (at the touchPoints height)
-      let thisElementsX = thisElement.xPos + Math.sqrt(thisElement.radius + Math.pow(touchPoint.y - thisElement.yPos, 2));
-
-      console.log(thisElementsX);
-      // let this element move the right amount to touch the touchpoint
-      thisElement.xPos += thisElement.xPos - thisElementsX
-      // update the css
-      thisElement.css({
-        left: thisElement.xPos
-      });
-      
-
-      // do the same for the prevElement
-      // determine the x coord of thisElement (at the touchPoints height)
-      let prevElementsX = prevElement.xPos + Math.sqrt(prevElement.radius - Math.pow(touchPoint.y - prevElement.yPos, 2));
-
-      // let this element move the right amount to touch the touchpoint
-      prevElement.xPos += prevElement.xPos - prevElementsX;
-      prevElement.css({
-        left: prevElement.xPos
-      });
-
-      // then go back to the prev element and check against their prev element
-      a -= 2;
-
+      // when the distance is smaller than the combined radius the circles either cross or one inherits the other
+      if (distance - padding < thisElement.radius + prevElement.radius) {
+        
+        // determine a new TouchPoint
+        let touchPoint = determineWishedTouchPoint(thisElement, prevElement);
+        let consol = thisElement.xPos + ":" + prevElement.xPos + "----" + thisElement.radius + ":" + prevElement.radius;
+        
+        if (thisElement.xPos > prevElement.xPos) {
+          thisElement.xPos = moveCircleInX(thisElement, touchPoint, "left");
+          prevElement.xPos = moveCircleInX(prevElement, touchPoint, "right");
+        } else if (thisElement.xPos < prevElement.xPos) {
+          thisElement.xPos = moveCircleInX(thisElement, touchPoint, "right");
+          prevElement.xPos = moveCircleInX(prevElement, touchPoint, "left");
+        }
+        console.log(consol + "----" + thisElement.xPos + ":" + prevElement.xPos);
+        thisElement.xPos = Math.round(thisElement.xPos);
+        prevElement.xPos = Math.round(prevElement.xPos);
+        madeChanges = true;
+      }
     }
 
+    // then go back to the prev element and check against their prev element
+    // if (madeChanges) a -= 2;
+
+    // if (a < 1) a = 1;
   }
   
-  
   lefts.forEach(element => {
-    stage.append(element);
+    let newElem = $(`<div id="${element.countryName}_Left"></div>`);
+    newElem.addClass("country");
+
+    newElem.css({
+      width: 2 * element.radius,
+      height: 2 * element.radius,
+      left: element.xPos - element.radius,
+      top: element.yPos - element.radius,
+      "background-color": element.color,
+    });
+    stage.append(newElem);
   });
+  
   rights.forEach(element => {
-    stage.append(element);
+    let newElem = $(`<div id="${element.countryName}_Rigt"></div>`);
+    newElem.addClass("country");
+
+    newElem.css({
+      width: 2 * element.radius,
+      height: 2 * element.radius,
+      left: element.xPos - element.radius,
+      top: element.yPos - element.radius,
+      "background-color": element.color,
+    });
+    stage.append(newElem);
   });
 }
 
@@ -436,81 +480,84 @@ function drawPoint(x, y) {
   stage.append(elem);
 }
 
-let circ1 = {
-  radius: 50,
-  xPos: 300,
-  yPos: 470,
-};
-let circ2 = {
-  radius: 50,
-  xPos: 310,
-  yPos: 480,
-};
+// let circ1 = {
+//   radius: 100,
+//   xPos: 270,
+//   yPos: 270,
+// };
+// let circ2 = {
+//   radius: 50,
+//   xPos: 210,
+//   yPos: 190,
+// };
 
-let res = determineWishedTouchPoint(circ1, circ2);
-let point = {
-  radius: 5,
-  xPos: res.x,
-  yPos: res.y
-};
-
-
-let circ1elem = $(`<div></div>`);
-let circ2elem = $(`<div></div>`);
-let pointPoint = $(`<div></div>`);
-
-circ1elem.addClass("country");
-circ2elem.addClass("country");
-pointPoint.addClass("country");
-
-circ1elem.css({
-  width: 2 * circ1.radius,
-  height: 2 * circ1.radius,
-  left: circ1.xPos - circ1.radius,
-  top: circ1.yPos - circ1.radius,
-  "background-color": "red",
-  "z-index": 1
-});
-
-circ2elem.css({
-  width: 2 * circ2.radius,
-  height: 2 * circ2.radius,
-  left: circ2.xPos - circ2.radius,
-  top: circ2.yPos - circ2.radius,
-  "background-color": "blue",
-  "z-index": 1
-});
-
-// determine a new TouchPoint
-let touchPoint = determineWishedTouchPoint(circ1, circ2);
-
-circ1.xPos = moveCircleInX({radius: circ1.radius, x: circ1.xPos, y: circ1.yPos}, touchPoint);
-
-// update the css
-circ1elem.css({
-  left: circ1.xPos - circ1.radius
-});
+// let res = determineWishedTouchPoint(circ1, circ2);
+// let point = {
+//   radius: 5,
+//   xPos: res.x,
+//   yPos: res.y
+// };
 
 
-circ2.xPos = moveCircleInX({radius: circ2.radius, x: circ2.xPos, y: circ2.yPos}, touchPoint);
+// let circ1elem = $(`<div></div>`);
+// let circ2elem = $(`<div></div>`);
+// let pointPoint = $(`<div></div>`);
 
-// let this element move the right amount to touch the touchpoint
-circ2elem.css({
-  left: circ2.xPos - circ2.radius
-});
+// circ1elem.addClass("country");
+// circ2elem.addClass("country");
+// pointPoint.addClass("country");
 
-pointPoint.css({
-  width: 2 * point.radius,
-  height: 2 * point.radius,
-  left: point.xPos - point.radius,
-  top: point.yPos - point.radius,
-  "background-color": "black",
-  "z-index": 3, 
-});
+// circ1elem.css({
+//   width: 2 * circ1.radius,
+//   height: 2 * circ1.radius,
+//   left: circ1.xPos - circ1.radius,
+//   top: circ1.yPos - circ1.radius,
+//   "background-color": "red",
+//   "z-index": 1
+// });
 
-stage.append(circ1elem);
-stage.append(circ2elem);
-stage.append(pointPoint);
+// circ2elem.css({
+//   width: 2 * circ2.radius,
+//   height: 2 * circ2.radius,
+//   left: circ2.xPos - circ2.radius,
+//   top: circ2.yPos - circ2.radius,
+//   "background-color": "blue",
+//   "z-index": 1
+// });
+
+// // determine a new TouchPoint
+// if (1 + circ2.radius <= circ1.radius) {
+//   // Inside
+//   console.log("Circle2 is inside Circle1");
+// }
+// let touchPoint = determineWishedTouchPoint(circ1, circ2);
+// circ1.xPos = moveCircleInX({radius: circ1.radius, x: circ1.xPos, y: circ1.yPos}, touchPoint, "right");
+// circ2.xPos = moveCircleInX({radius: circ2.radius, x: circ2.xPos, y: circ2.yPos}, touchPoint, "left");
+
+// // update the css
+// circ1elem.css({
+//   left: circ1.xPos - circ1.radius
+// });
+
+
+
+// // let this element move the right amount to touch the touchpoint
+// circ2elem.css({
+//   left: circ2.xPos - circ2.radius
+// });
+
+// pointPoint.css({
+//   width: 2 * point.radius,
+//   height: 2 * point.radius,
+//   left: point.xPos - point.radius,
+//   top: point.yPos - point.radius,
+//   "background-color": "black",
+//   "z-index": 3, 
+// });
+
+// stage.append(circ1elem);
+// stage.append(circ2elem);
+// stage.append(pointPoint);
 /*
   this function moves the circles, that are given to this function in x-direction
   to touch a specific point
@@ -519,22 +566,20 @@ stage.append(pointPoint);
   relative to the point: 
     circle(s center) sits to the points right => move the circle to the right
 */
-function moveCircleInX(circle = {radius: 0, x: 0, p: 0}, point = {x: 0, y: 0}) {
+function moveCircleInX(circle, point, direction = "right") {
   // determine the x coord of the circle (at the points height)
   let circlesXatPointsHeight;
   // because a circle has 2 x values for most y values: look, wich one is needed
     // when the circle is right of the point
-  if (circle.x > point.x) circlesXatPointsHeight = circle.x - Math.sqrt(Math.pow(circle.radius, 2) - Math.pow(point.y - circle.y, 2));
+  if (direction === "right") circlesXatPointsHeight = circle.xPos - Math.sqrt(Math.pow(circle.radius, 2) - Math.pow(point.y - circle.yPos, 2));
     // when the circle is left of the point
-  if (circle.x < point.x) circlesXatPointsHeight = circle.x + Math.sqrt(Math.pow(circle.radius, 2) - Math.pow(point.y - circle.y, 2));
+  if (direction === "left") circlesXatPointsHeight = circle.xPos + Math.sqrt(Math.pow(circle.radius, 2) - Math.pow(point.y - circle.yPos, 2));
   // drawPoint(circlesXatPointsHeight, point.y);
 
 
   // move the circle in x-direction (the difference of the determined x-value of the circle and the points x-value)
-  circle.x -= circlesXatPointsHeight - point.x;
-
-  // return the new circles center position
-  return circle.x;
+  circle.xPos -= circlesXatPointsHeight - point.x;
+  return circle.xPos;
 }
 
 /* 
