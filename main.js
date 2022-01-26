@@ -19,49 +19,91 @@ const minSuicideRate = getMinValue("suicideRate");
 
 
 $(function () {
-  atheisticState();
+  // atheisticState();
   // drawRainState(true);
-  // drawMapState();
+  drawMapState();
 });
 // window.addEventListener('resize', drawRainState);
 
+// the area displays the population-size
 function drawMapState(autoArea = true) {
   
-  // the area displays the population-size
-  let maxRadius = 1000;
-  if (autoArea === true) maxRadius = determinAutoRadius();
+  if (autoArea === true) {
+    let maxRadius = determinAutoRadius();
 
-
-  let move = moveMap(maxRadius);
-
-
-  data.forEach(country => {
-    // the dots positon on the stage is the raw 
-    // 1. shift position to positiv values; 2. scale the value to a the stagesSize
-    const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + move.x;
-    const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0) + move.y;
-
-    // const area = map(country.population, 0, maxPopulation, 0, maxArea);
-    // const radius = Math.sqrt(area / Math.PI);
-    const radius = map(country.population, 0, maxPopulation, 0, maxRadius);
-
-    // the color displays the happynesScore
-    const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
-
-    // create the div and 
-    let countryElement = $(`<div id="${country.countryName}"></div>`);
-    countryElement.addClass("country");
-    countryElement.css({
-      width: radius * 2,
-      height: radius * 2,
-      left: xPosition - radius,
-      top: yPosition - radius,
-      "background-color": color,
+    let move = centerMap(maxRadius);
+  
+    data.forEach(country => {
+      // the dots positon on the stage is the raw 
+      // 1. shift position to positiv values; 2. scale the value to a the stagesSize
+      const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + move.x;
+      const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0) + move.y;
+  
+      // const area = map(country.population, 0, maxPopulation, 0, maxArea);
+      // const radius = Math.sqrt(area / Math.PI);
+      const radius = map(country.population, 0, maxPopulation, 0, maxRadius);
+  
+      // the color displays the happynesScore
+      const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
+  
+      // create the div and 
+      let countryElement = $(`<div id="${country.countryName}"></div>`);
+      countryElement.addClass("country");
+      countryElement.css({
+        width: radius * 2,
+        height: radius * 2,
+        left: xPosition - radius,
+        top: yPosition - radius,
+        "background-color": color,
+      });
+  
+      stage.append(countryElement);
+  
     });
+  } else { 
+    /*
+      the radius depends on a maxValue
+      to show all points, sort the countrys
+      and put the smaller in front of the bigger ones
+    */
+    let maxRadius = 100;
+    
+    let move = centerMap(maxRadius);
+    
+    data = sortFor("population", true);
 
-    stage.append(countryElement);
+    for (let a = 0; a < data.length; a++) {
+      const country = data[a];
+      // the dots positon on the stage is the raw 
+      // 1. shift position to positiv values; 2. scale the value to a the stagesSize
+      const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + move.x;
+      const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0) + move.y;
+  
+      // const area = map(country.population, 0, maxPopulation, 0, maxArea);
+      // const radius = Math.sqrt(area / Math.PI);
+      const radius = map(country.population, 0, maxPopulation, 0, maxRadius);
+  
+      // the color displays the happynesScore
+      const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
+  
+      // create the div and 
+      let countryElement = $(`<div id="${country.countryName}"></div>`);
+      countryElement.addClass("country");
+      countryElement.css({
+        width: radius * 2,
+        height: radius * 2,
+        left: xPosition - radius,
+        top: yPosition - radius,
+        "z-index": a,
+        "background-color": color,
+      });
+  
+      stage.append(countryElement);
+  
+    }
+  }
 
-  });
+
 
   //     countryCircle.data(data[i]);
 
@@ -77,10 +119,6 @@ function drawMapState(autoArea = true) {
 
     //     stage.append(countryCircle);
     // }
-}
-
-function drawMapStateV2() {
-  
 }
 
 // still has some problems e.g.Niger and Nigeria
@@ -570,6 +608,7 @@ function determineWishedTouchPoint(circle1, circle2) { // the two circles have t
   // get y by pasting x into one of the straights equations
   const y = (d * x + (y1 - x1 * d));
 
+  drawPoint(x,y);
   // returns the wishedTouchPoints coords
   return {x: x, y: y};
 }

@@ -78,7 +78,7 @@ function sortFor(key, descending = false) {
   this funciton determines the values to move the map
   so it is centered
 */
-function moveMap(maxRadius) {
+function centerMap(maxRadius) {
   let right = stage.innerWidth() / 2;
   let left = stage.innerWidth() / 2;
   let up = stage.innerHeight() / 2;
