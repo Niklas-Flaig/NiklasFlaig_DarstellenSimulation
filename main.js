@@ -242,11 +242,12 @@ function drawRainState(inSteps = false) {
   
       stage.append(countryElement);
 
+      // the intervall in wich the drops will appear
       const dropTime = map(country.suicideRate, minSuicideRate, maxSuicideRate, 10000, 1000);
 
       setTimeout(() => { // this first timeout makes it appear, as if the rain is just starting: very cool
         newRainDrop({x: ((xMax - 2 * padding) / data.length * a) + padding, y: 100}, dropTime);
-      }, dropTime);
+      }, map(Math.random, 0, 1, 10000, 1000)); // the first timeout is a random timespan between one and 10 seconds
       
     }
   }
