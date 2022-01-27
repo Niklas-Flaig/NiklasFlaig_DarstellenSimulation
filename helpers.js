@@ -4,6 +4,8 @@ function map(value, minStart, maxStart, minGoal, maxGoal) {
 
 function getColor(value, min, max) {
   return chroma.mix(colors[0], colors[1], map(value, min, max, 0, 1), "lch");
+  // if (value <= 0.5) return chroma.mix(colors[0], colors[1], map(value, min, max, 0, 0.5), "lch");
+  // if (value > 0.5) return chroma.mix(colors[1], colors[2], map(value, min, max, 0.5, 1), "lch");
 }
 
 // will find the biggest value of a key in data

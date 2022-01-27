@@ -4,7 +4,9 @@ let stage = $("#canvas");
 // const colors = ["#BE5050", "#E3E04B"];
 // const colors = ["#BE5050", "#97E34B"];
 // const colors = ["#C1374F", "#E3E04B"];
-const colors = ["#865353", "#A6DB10"];
+// const colors = ["#9f5050", "#865353", "#A6FB10"];
+const colors = ["#A6DB10", "#865353"];
+// const colors = ["#A6DB10", "#C78D42", "#865353"];
 
 // to be able to recreate the data w/out having to re createWorkData() ==> better performance!
 const dataNoEdit = createWorkData();
