@@ -7,10 +7,10 @@ function getColor(value, min, max) {
 }
 
 // will find the biggest value of a key in data
-function getMaxValue (key) {
+function getMaxValue (key, dataSet) {
   let maxValue = 0;
   // check forEach country if it holds a higher value than the current one
-  data.forEach(country => {
+  dataSet.forEach(country => {
     // if the new value is bigger, than the current maxValue, overwrite
     if (country[key] > maxValue) {
       maxValue = country[key];
@@ -20,11 +20,11 @@ function getMaxValue (key) {
   return maxValue;
 };
 
-// will find the smallest value of a key in data
-function getMinValue (key) {
-  let minValue = data[0][key];
+// will find the smallest value of a key in dataSet
+function getMinValue (key, dataSet) {
+  let minValue = dataSet[0][key];
   // check forEach country if it holds a lower value than the current one
-  data.forEach(country => {
+  dataSet.forEach(country => {
     // if the new value is lower, than the current minValue, overwrite
     if (country[key] < minValue) {
       minValue = country[key];
@@ -115,8 +115,8 @@ function centerMap(maxRadius) {
 // rangeStart and -End are percent-values
 // please give two values (first val smaller than the second)
 function filterData(key, rangeStart = 0, rangeEnd = 100) {
-  const keyStart = minPopulation;
-  const keyEnd = maxPopulation;
+  const keyStart = getMinValue("population", dataNoEdit);
+  const keyEnd = getMaxValue("population", dataNoEdit);
 
   // rangestart = 0 means: lowerValue = smallest possible Value
   const lowerValue = map(rangeStart, 0, 100, keyStart, keyEnd);

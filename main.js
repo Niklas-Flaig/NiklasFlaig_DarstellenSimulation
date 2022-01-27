@@ -6,17 +6,20 @@ let stage = $("#canvas");
 // const colors = ["#C1374F", "#E3E04B"];
 const colors = ["#865353", "#A6DB10"];
 
+// to be able to recreate the data w/out having to re createWorkData() ==> better performance!
+const dataNoEdit = createWorkData();
+
 let currentState = "worldMap";
 let data = createWorkData();
 // get the relevant maxValues
-const maxPopulation = getMaxValue("population");
-const minPopulation = getMinValue("population");
+const maxPopulation = getMaxValue("population", data);
+const minPopulation = getMinValue("population", data);
 
-const maxHappynesScore = getMaxValue("happynesScore");
-const minHappynesScore = getMinValue("happynesScore");
+const maxHappynesScore = getMaxValue("happynesScore", data);
+const minHappynesScore = getMinValue("happynesScore", data);
 
-const maxSuicideRate = getMaxValue("suicideRate");
-const minSuicideRate = getMinValue("suicideRate");
+const maxSuicideRate = getMaxValue("suicideRate", data);
+const minSuicideRate = getMinValue("suicideRate", data);
 
 // initial render stuff in here
 $(function () {
