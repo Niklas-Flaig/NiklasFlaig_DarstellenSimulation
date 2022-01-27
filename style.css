@@ -56,3 +56,22 @@ body {
 .highlight {
   background-color: pink;
 }
+
+
+#gui {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 300px;
+}
+#gui input {
+  height: auto;
+  margin: 0px;
+  width: 50%;
+  appearance: none;
+  height: 25px; /* Specified height */
+  background: #d3d3d3; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  transition: opacity .2s;
+}

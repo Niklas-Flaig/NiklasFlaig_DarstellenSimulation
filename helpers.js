@@ -115,21 +115,23 @@ function centerMap(maxRadius) {
 // rangeStart and -End are percent-values
 // please give two values (first val smaller than the second)
 function filterData(key, rangeStart = 0, rangeEnd = 100) {
-  const keyStart = getMinValue(key);
-  const keyEnd = getMaxValue(key);
+  const keyStart = minPopulation;
+  const keyEnd = maxPopulation;
 
   // rangestart = 0 means: lowerValue = smallest possible Value
   const lowerValue = map(rangeStart, 0, 100, keyStart, keyEnd);
   // rangeEnd = 100
   const upperValue = map(rangeEnd, 0, 100, keyStart, keyEnd);
 
+  let newData = createWorkData();
   
-  for (let a = 0; a < data.length; a++) {
-    const country = data[a];
+  for (let a = 0; a < newData.length; a++) {
+    const country = newData[a];
     // if a countrys keyvalue doesn't match the range
     if (country[key] < lowerValue || country[key] > upperValue) {
       // deleete the var
-      data.splice(a, 1);
+      newData.splice(a, 1);
     }
   }
+  return newData;
 }

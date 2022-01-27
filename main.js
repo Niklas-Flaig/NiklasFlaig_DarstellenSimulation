@@ -5,8 +5,9 @@ let stage = $("#canvas");
 // const colors = ["#BE5050", "#97E34B"];
 // const colors = ["#C1374F", "#E3E04B"];
 const colors = ["#865353", "#A6DB10"];
-let data = createWorkData();
 
+let currentState = "worldMap";
+let data = createWorkData();
 // get the relevant maxValues
 const maxPopulation = getMaxValue("population");
 const minPopulation = getMinValue("population");
@@ -17,15 +18,34 @@ const minHappynesScore = getMinValue("happynesScore");
 const maxSuicideRate = getMaxValue("suicideRate");
 const minSuicideRate = getMinValue("suicideRate");
 
-
+// initial render stuff in here
 $(function () {
-  filterData("population", 0, 100);
-  console.log(data);
-
-  // atheisticState();
-  // drawRainState(true);
   drawMapState();
+  
+  /* the gui wich makes it possible ot the user to manupalte the Website*/
+  userInter();
+
 });
+
+
+function render() {
+  console.log(data);
+  document.querySelector("#canvas").innerHTML = "";
+  switch (currentState) {
+    case "worldMap":
+      
+      break;
+    case "atheistic":
+    
+      break;
+    case "suicide":
+      drawMapState:
+      break;
+  }
+  drawMapState();
+      // atheisticState();
+      // drawRainState(true);
+}
 // window.addEventListener('resize', drawRainState);
 
 // the area displays the population-size
@@ -394,7 +414,7 @@ function atheisticState(params) {
       }
       
       // determine the distancebetween the circles centers
-      const distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+      const distance = parseFloat(Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2)));
       
       /* if one circle sits inside the other
           move the smaller circle to the edge of the bigger circle
