@@ -146,7 +146,7 @@ function drawMapState(autoArea = true) {
 }
 
 // still has some problems e.g.Niger and Nigeria
-function determinAutoRadius(key = "population", padding = 0) {  
+function determinAutoRadius(key = "population", padding = 2) {
   // the biggest size the Area can get
   let maxRadius = 100000;
 
@@ -168,9 +168,10 @@ function determinAutoRadius(key = "population", padding = 0) {
         the distance has to be rounded down, because the elements final Position gets rounded too
         theoretically all values have to be rouunded, always meh
       */
-      const distanceAB = Math.floor(Math.sqrt(Math.pow(yPosA - yPosB, 2) + Math.pow(xPosA - xPosB, 2)));
+      const distanceAB = Math.sqrt(Math.pow(yPosA - yPosB, 2) + Math.pow(xPosA - xPosB, 2));
       // compare maxPossibleRadiusOnAForThisCombi against currently maxPossibleRadiusForA
-      let maxPossibleRadiusOnAForThisCombi = (distanceAB - padding) * ((countryA[key] + countryB[key]) / countryA[key]);
+      // dont multiply the distance!!!
+      let maxPossibleRadiusOnAForThisCombi = (distanceAB - padding) / ((countryA[key] + countryB[key]) / countryA[key]);
       if (maxPossibleRadiusOnAForThisCombi < maxPossibleRadiusForA) maxPossibleRadiusForA = maxPossibleRadiusOnAForThisCombi;
     }
     
