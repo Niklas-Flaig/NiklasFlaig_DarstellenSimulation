@@ -413,24 +413,28 @@ function atheisticState(params) {
   rights = sortFor("area", true, rights);
 
 
-  const padding = 0;
+  const padding = 4;
   
   for (let a = 1; a < lefts.length; a++) {
     const thisElement = lefts[a];
+    
     let direction = -1;
     if (Math.random() < 0.5) direction = 1;
-
+    
     for (let b = 0; b < a; b++) {
+      // use "madeChanges", because a smaller circle could touch a bigger one if the bigger one passed them
+      let madeChanges = false;
       const prevElement = lefts[b];
 
       let distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
 
-
       // while their distance is smaller than their radius
-      while (distance + padding < thisElement.radius + prevElement.radius) {
+      while (distance - padding < thisElement.radius + prevElement.radius) {
         thisElement.xPos += direction;
         distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+        madeChanges = true;
       }
+      if (madeChanges) b = 0;
     }
   }
 
@@ -441,15 +445,19 @@ function atheisticState(params) {
     if (Math.random() < 0.5) direction = 1;
     
     for (let b = 0; b < a; b++) {
+      // use "madeChanges", because a smaller circle could touch a bigger one if the bigger one passed them
+      let madeChanges = false;
       const prevElement = rights[b];
 
       let distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
 
       // while their distance is smaller than their radius
-      while (distance + padding < thisElement.radius + prevElement.radius) {
+      while (distance - padding < thisElement.radius + prevElement.radius) {
         thisElement.xPos += direction;
         distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+        madeChanges = true;
       }
+      if (madeChanges) b = 0;
     }
   }
   
