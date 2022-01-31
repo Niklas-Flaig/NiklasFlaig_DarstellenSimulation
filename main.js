@@ -243,8 +243,7 @@ function drawRainState(inSteps = false) {
 
       setTimeout(() => { // this first timeout makes it appear, as if the rain is just starting: very cool
         newRainDrop({x: ((xMax - 2 * padding) / data.length * a) + padding, y: 100}, dropTime);
-      }, map(Math.random, 0, 1, 10000, 1000)); // the first timeout is a random timespan between one and 10 seconds
-      
+      }, (Math.random() * 10000)); // the first timeout is a random timespan between one and 10 seconds
     }
   }
 }
@@ -356,42 +355,103 @@ function atheisticState(params) {
   */
   data.forEach(country => {
 
-    // the atheistic part
-    let elementLeft ={};
+    let shared = {
+      yPos: map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50),
+      color: getColor(country.happynesScore, minHappynesScore, maxHappynesScore),
+    };
 
-    // determine the atheistic population in this country
+    // the atheistic part
+    let elementLeft = $(`<div id="${country.countryName}_Left"></div>`);
+    elementLeft.addClass("country");
+
+    elementLeft.yPos = shared.yPos;
     elementLeft.partialPopulation = country.population * 0.01 * country.shareOfAtheisticOrUnaffiliated;
     // when the percentage is 1(smallest possible value) we don't want the div to be shown at all
     // if (country.shareOfAtheisticOrUnaffiliated === 1) elementLeft.partialPopulation = 0;
-
     elementLeft.countryName = country.countryName;
     elementLeft.area = map(elementLeft.partialPopulation, 0, maxPopulation, 0, maxArea);
     elementLeft.radius = Math.sqrt(elementLeft.area / Math.PI);
-    elementLeft.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
-    elementLeft.xPos = 300;
-    elementLeft.color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
+    elementLeft.xPos = stage.innerWidth() * 0.3;
+    elementLeft.color = shared.color;
+
+    elementLeft.css({
+      width: 0,
+      height: 0,
+      left: elementLeft.xPos,
+      top: elementLeft.yPos,
+      "background-color": elementLeft.color,
+    });
 
     lefts.push(elementLeft);
 
 
-    let elementRigt = {};
+    // the atheistic part
+    let elementRigt = $(`<div id="${country.countryName}_Right"></div>`);
+    elementRigt.addClass("country");
 
+    elementRigt.yPos = shared.yPos;
     elementRigt.partialPopulation = country.population * 0.01 * (100 - country.shareOfAtheisticOrUnaffiliated);
     elementRigt.countryName = country.countryName;
     elementRigt.area = map(elementRigt.partialPopulation, 0, maxPopulation, 0, maxArea);
     elementRigt.radius = Math.sqrt(elementRigt.area / Math.PI);
-    elementRigt.yPos = map(country.happynesScore, minHappynesScore, maxHappynesScore, stage.innerHeight() - 50, 50);
     elementRigt.xPos = stage.innerWidth() * 0.7;
-    elementRigt.color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
+    elementRigt.color = shared.color;
+
+    elementRigt.css({
+      width: 0,
+      height: 0,
+      left: elementLeft.xPos,
+      top: elementRigt.yPos,
+      "background-color": elementRigt.color,
+    });
+
 
     rights.push(elementRigt);
   });
 
+  lefts = sortFor("area", true, lefts);
+  rights = sortFor("area", true, rights);
+
 
   const padding = 0;
   
+  for (let a = 1; a < lefts.length; a++) {
+    const thisElement = lefts[a];
+    let direction = -1;
+    if (Math.random() < 0.5) direction = 1;
 
-  
+    for (let b = 0; b < a; b++) {
+      const prevElement = lefts[b];
+
+      let distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+
+
+      // while their distance is smaller than their radius
+      while (distance + padding < thisElement.radius + prevElement.radius) {
+        thisElement.xPos += direction;
+        distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+      }
+    }
+  }
+
+  for (let a = 1; a < rights.length; a++) {
+    const thisElement = rights[a];
+    
+    let direction = -1;
+    if (Math.random() < 0.5) direction = 1;
+    
+    for (let b = 0; b < a; b++) {
+      const prevElement = rights[b];
+
+      let distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+
+      // while their distance is smaller than their radius
+      while (distance + padding < thisElement.radius + prevElement.radius) {
+        thisElement.xPos += direction;
+        distance = Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2));
+      }
+    }
+  }
   
   lefts.forEach(element => {
     let newElem = $(`<div id="${element.countryName}_Left"></div>`);
