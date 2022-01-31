@@ -32,23 +32,20 @@ $(function () {
 });
 
 
-function render() {
+function render(currentState) {
   console.log(data);
   document.querySelector("#canvas").innerHTML = "";
   switch (currentState) {
     case "worldMap":
-      
+      drawMapState();
       break;
     case "atheistic":
-    
+      atheisticState();
       break;
     case "suicide":
-      drawMapState:
+      drawRainState(true);
       break;
   }
-  drawMapState();
-      // atheisticState();
-      // drawRainState(true);
 }
 // window.addEventListener('resize', drawRainState);
 
