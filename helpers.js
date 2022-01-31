@@ -35,12 +35,12 @@ function getMinValue (key, dataSet) {
   return minValue;
 };
 
-function sortFor(key, descending = false) {
+function sortFor(key, descending = false, dataSet = data) {
   let newData = [];
   
 
   if (!descending) {
-    data.forEach(countryA => {
+    dataSet.forEach(countryA => {
       let added = false;
 
       for (let x = 0; x < newData.length; x++) {
@@ -57,7 +57,7 @@ function sortFor(key, descending = false) {
     });
   } else {
 
-    data.forEach(countryA => {
+    dataSet.forEach(countryA => {
       let added = false;
       
       for (let x = 0; x < newData.length; x++) {
@@ -117,8 +117,8 @@ function centerMap(maxRadius) {
 // rangeStart and -End are percent-values
 // please give two values (first val smaller than the second)
 function filterData(key, rangeStart = 0, rangeEnd = 100) {
-  const keyStart = getMinValue("population", dataNoEdit);
-  const keyEnd = getMaxValue("population", dataNoEdit);
+  const keyStart = getMinValue(key, dataNoEdit);
+  const keyEnd = getMaxValue(key, dataNoEdit);
 
   // rangestart = 0 means: lowerValue = smallest possible Value
   const lowerValue = map(rangeStart, 0, 100, keyStart, keyEnd);
