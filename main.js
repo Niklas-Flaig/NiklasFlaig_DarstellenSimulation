@@ -11,7 +11,6 @@ const colors = ["#A6DB10", "#865353"];
 // to be able to recreate the data w/out having to re createWorkData() ==> better performance!
 const dataNoEdit = createWorkData();
 
-let currentState = "worldMap";
 let data = createWorkData();
 // get the relevant maxValues
 const maxPopulation = getMaxValue("population", data);

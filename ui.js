@@ -2,6 +2,7 @@ let gui = $("#gui");
 
 function userInter() {
   sliders();
+  tabs();
 }
 
 function sliders() {
@@ -39,7 +40,7 @@ function sliders() {
   // reRenders the current state but with a new dataArray
   const reRender = () => {
     data = filterData("population", parseFloat(sliderLeft.value), parseFloat(sliderRight.value));
-    render("map");
+    render("worldMap");
   };
 
   /* mouseUp against the lagg */
@@ -47,3 +48,38 @@ function sliders() {
   sliderRight.addEventListener("mouseup", reRender);
 }
 
+function tabs() {
+  let worldMap = $(`<a id="worldSwitcher" class="tab">Map</a>`);
+  let atheistic = $(`<a id="atheisticSwitcher" class="tab">Atheistic</a>`);
+  let suicide = $(`<a id="suicideSwitcher" class="tab">suicide</a>`);
+  
+  worldMap.css({
+
+  });
+  atheistic.css({
+
+  });
+  suicide.css({
+
+  });
+
+  gui.append(worldMap);
+  gui.append(atheistic);
+  gui.append(suicide);
+
+
+  /* listeners */
+  document.querySelector("#worldSwitcher").addEventListener("click", () => {
+    render("worldMap");
+  });
+
+  document.querySelector("#atheisticSwitcher").addEventListener("click", () => {
+    render("atheistic");
+  });
+
+  document.querySelector("#suicideSwitcher").addEventListener("click", () => {
+    render("suicide");
+  });
+  
+
+}
