@@ -391,74 +391,7 @@ function atheisticState(params) {
   const padding = 0;
   
 
-  /*
-    now check for ell elements, if they touch, and if they do, adapt their xPos
-    start with the second Item, because you cant compare the first element against anything
-    compare the current element against all previous
-  */
-  for (let a = 1; a < rights.length; a++) {
-    
-    let thisElement = rights[a];
-    
-    let madeChanges = false;
-
-    for (let b = a - 1; b >= 0; b--) {
-      let prevElement = rights[b];
-
-      // when the both circles center share the same x Position
-      // move this Element a intitial Pixel in a random direction
-      if (thisElement.xPos === prevElement.xPos) {
-        if (Math.random() < 0.5) {
-          thisElement.xPos --;
-        } else {
-          thisElement.xPos ++;
-        }
-      }
-      
-      // determine the distancebetween the circles centers
-      const distance = parseFloat(Math.sqrt(Math.pow(thisElement.yPos - prevElement.yPos, 2) + Math.pow(thisElement.xPos - prevElement.xPos, 2)));
-      
-      /* if one circle sits inside the other
-          move the smaller circle to the edge of the bigger circle
-          this is also brute force, not a smart function :(
-        */
-      if (distance + thisElement.radius <= prevElement.radius || distance + prevElement.radius <= thisElement.radius) {
-        // when the smaller circles center is left of the bigger ones
-        if (thisElement.xPos < prevElement.xPos) {
-          thisElement.xPos = prevElement.xPos - prevElement.radius;
-        } else if (thisElement.xPos > prevElement.xPos) { // when the smaller circles center is left of the bigger ones
-          thisElement.xPos = prevElement.xPos + prevElement.radius;
-        }
-      }
-
-
-      // when the distance is smaller than the combined radius the circles either cross or one inherits the other
-      if (distance - padding < thisElement.radius + prevElement.radius) {
-        
-        // determine a new TouchPoint
-        let touchPoint = determineWishedTouchPoint(thisElement, prevElement);
-        let consol = thisElement.xPos + ":" + prevElement.xPos + "----" + thisElement.radius + ":" + prevElement.radius;
-        
-        if (thisElement.xPos > prevElement.xPos) {
-          thisElement.xPos = moveCircleInX(thisElement, touchPoint, "left");
-          prevElement.xPos = moveCircleInX(prevElement, touchPoint, "right");
-        } else if (thisElement.xPos < prevElement.xPos) {
-          thisElement.xPos = moveCircleInX(thisElement, touchPoint, "right");
-          prevElement.xPos = moveCircleInX(prevElement, touchPoint, "left");
-        }
-        console.log(consol + "----" + thisElement.xPos + ":" + prevElement.xPos);
-        thisElement.xPos = Math.round(thisElement.xPos);
-        prevElement.xPos = Math.round(prevElement.xPos);
-        
-        madeChanges = true;
-      }
-    }
-
-    // then go back to the prev element and check against their prev element
-    if (madeChanges) a = 1;
-
-    // if (a < 1) a = 1;
-  }
+  
   
   lefts.forEach(element => {
     let newElem = $(`<div id="${element.countryName}_Left"></div>`);
