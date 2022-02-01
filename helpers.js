@@ -125,7 +125,7 @@ function filterData(key, rangeStart = 0, rangeEnd = 100) {
   // rangeEnd = 100
   const upperValue = map(rangeEnd, 0, 100, keyStart, keyEnd);
 
-  let newData = createWorkData();
+  let newData = dataNoEdit.map(cloneElement => cloneElement);
   
   for (let a = 0; a < newData.length; a++) {
     const country = newData[a];
