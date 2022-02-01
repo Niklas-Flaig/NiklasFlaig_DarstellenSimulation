@@ -5,7 +5,7 @@ let stage = $("#canvas");
 // const colors = ["#BE5050", "#97E34B"];
 // const colors = ["#C1374F", "#E3E04B"];
 // const colors = ["#9f5050", "#865353", "#A6FB10"];
-const colors = ["#A6DB10", "#865353"];
+const colors = ["#865353", "#A6DB10"];
 // const colors = ["#A6DB10", "#C78D42", "#865353"];
 
 // to be able to recreate the data w/out having to re createWorkData() ==> better performance!
@@ -51,81 +51,88 @@ function render(currentState) {
 
 // the area displays the population-size
 function drawMapState(autoArea = true) {
+  const maxRadius = determinAutoRadius();
   
-  if (autoArea === true) {
-    let maxRadius = determinAutoRadius();
+  console.log(maxRadius);
 
-    let move = centerMap(maxRadius);
-  
-    data.forEach(country => {
-      // the dots positon on the stage is the raw 
-      // 1. shift position to positiv values; 2. scale the value to a the stagesSize
-      const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + move.x;
-      const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0) + move.y;
-  
-      // const area = map(country.population, 0, maxPopulation, 0, maxArea);
-      // const radius = Math.sqrt(area / Math.PI);
-      const radius = map(country.population, 0, maxPopulation, 0, maxRadius);
-  
-      // the color displays the happynesScore
-      const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
-  
-      // create the div and 
-      let countryElement = $(`<div id="${country.countryName}"></div>`);
-      countryElement.addClass("country");
-      countryElement.css({
-        width: radius * 2,
-        height: radius * 2,
-        left: xPosition - radius,
-        top: yPosition - radius,
-        "background-color": color,
-      });
-  
-      stage.append(countryElement);
-  
+  const move = centerMap(maxRadius);
+
+
+  let countrys = [];
+
+  data.forEach(country => {
+    // create the div and 
+    let element = $(`<div id="${country.countryName}"></div>`);
+    element.addClass("country");
+
+    // the dots positon on the stage is the raw 
+    // 1. shift position to positiv values; 2. scale the value to a the stagesSize
+    element.xPos = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + move.x;
+    element.yPos = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0) + move.y;
+    element.radius = map(country.population, 0, maxPopulation, 0, maxRadius); // the area(and therefore the radius) displays the populationSize
+    element.color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore); // the color displays the happynesScore
+    element.countryName = country.countryName;
+    element.population = country.population;
+    element.happynesScore = country.happynesScore;
+
+    element.css({
+      width: element.radius * 2,
+      height: element.radius * 2,
+      left: element.xPos - element.radius,
+      top: element.yPos - element.radius,
+      "background-color": element.color,
     });
-  } else { 
-    /*
-      the radius depends on a maxValue
-      to show all points, sort the countrys
-      and put the smaller in front of the bigger ones
-    */
-    let maxRadius = 100;
-    
-    let move = centerMap(maxRadius);
-    
-    data = sortFor("population", true);
 
-    for (let a = 0; a < data.length; a++) {
-      const country = data[a];
-      // the dots positon on the stage is the raw 
-      // 1. shift position to positiv values; 2. scale the value to a the stagesSize
-      const xPosition = map(country.longitude + 180, 0, 360, 0, stage.innerWidth()) + move.x;
-      const yPosition = map(country.latitude + 90, 0, 180, stage.innerHeight(), 0) + move.y;
+    stage.append(element);
+
+    countrys.push(element);
+  });
   
-      // const area = map(country.population, 0, maxPopulation, 0, maxArea);
-      // const radius = Math.sqrt(area / Math.PI);
-      const radius = map(country.population, 0, maxPopulation, 0, maxRadius);
-  
-      // the color displays the happynesScore
-      const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
-  
-      // create the div and 
-      let countryElement = $(`<div id="${country.countryName}"></div>`);
-      countryElement.addClass("country");
-      countryElement.css({
-        width: radius * 2,
-        height: radius * 2,
-        left: xPosition - radius,
-        top: yPosition - radius,
-        "z-index": a,
-        "background-color": color,
+  // call this to update the map
+  const reRender = (min = 0, max = 100) => {
+    const newDataSet = filterData("population", min, max);
+    // we get a new dataSet, its filtered and can be used to
+    // first determine a new maxRadius, and to determine all countrys that shouldnt be rendered anymore
+    let newMaxRad = determinAutoRadius(newDataSet);
+    console.log(newMaxRad);
+
+    countrys.forEach(element => {
+      element.radius = map(element.population, 0, maxPopulation, 0, newMaxRad);
+
+      // when the element isnt part of the new DataSet make radius = 0 : so it will shrink
+      if (newDataSet.find(country => country.countryName === element.countryName) === undefined) element.radius = 0;
+
+
+      element.css({
+        "width": element.radius * 2,
+        "height": element.radius * 2,
+
+        "left": element.xPos - element.radius,
+        "top": element.yPos - element.radius,
       });
+    });
+  };
+
+
+  // let slider = $(`<input id="slider" type="range" min="0" max="100" value="100">`);
+  // let sliderOutPut = $((`<span id="sliderField"></span>`));
+
+  // gui.append(slider);
+  // gui.append(sliderOutPut);
   
-      stage.append(countryElement);
-  
-    }
-  }
+  // let slidingTool = document.getElementById("slider");
+  // let sliderLabel = document.getElementById("sliderField");
+  // sliderLabel.innerHTML = maxHappynesScore;
+
+  // slidingTool.oninput = () => {
+  //   document.getElementById("sliderField").innerHTML = map(slidingTool.value, 0, 100, 0, maxPopulation);
+  // };
+
+  // /* mouseUp against the lagg */
+  // slidingTool.addEventListener("mouseup", () => {
+  //   reRender(0, slidingTool.value);
+  // });
+
 
 
 
@@ -146,20 +153,20 @@ function drawMapState(autoArea = true) {
 }
 
 // still has some problems e.g.Niger and Nigeria
-function determinAutoRadius(key = "population", padding = 2) {
+function determinAutoRadius(dataSet = data, key = "population", padding = 2) {
   // the biggest size the Area can get
   let maxRadius = 100000;
 
-  for (let a = 0; a < data.length; a++) {
-    const countryA = data[a];
+  for (let a = 0; a < dataSet.length; a++) {
+    const countryA = dataSet[a];
     
     const yPosA = map(countryA.longitude + 180, 0, 360, 0, stage.innerWidth());
     const xPosA = map(countryA.latitude + 90, 0, 180, stage.innerHeight(), 0);
     
     let maxPossibleRadiusForA = maxRadius; // stores the currently biggest size for the Radius of A
     // only has to check against all countrys coming after
-    for (let b = a + 1; b < data.length; b++) {
-      const countryB = data[b];
+    for (let b = a + 1; b < dataSet.length; b++) {
+      const countryB = dataSet[b];
 
       const yPosB = map(countryB.longitude + 180, 0, 360, 0, stage.innerWidth());
       const xPosB = map(countryB.latitude + 90, 0, 180, stage.innerHeight(), 0);
