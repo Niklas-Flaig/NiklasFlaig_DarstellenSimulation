@@ -22,6 +22,9 @@ const minHappynesScore = getMinValue("happynesScore", data);
 const maxSuicideRate = getMaxValue("suicideRate", data);
 const minSuicideRate = getMinValue("suicideRate", data);
 
+let state = "worldMap";
+
+
 // initial render stuff in here
 $(function () {
   drawMapState();
@@ -33,18 +36,23 @@ $(function () {
 
 
 function render(currentState) {
-  console.log(data);
-  document.querySelector("#canvas").innerHTML = "";
-  switch (currentState) {
-    case "worldMap":
-      drawMapState();
-      break;
-    case "atheistic":
-      atheisticState();
-      break;
-    case "suicide":
-      drawRainState(true);
-      break;
+  // just render if not already rendered
+  if (state !== currentState) {
+    state = currentState;
+
+    document.querySelector("#canvas").innerHTML = "";
+    
+    switch (currentState) {
+      case "worldMap":
+        drawMapState();
+        break;
+      case "atheistic":
+        atheisticState();
+        break;
+      case "suicide":
+        drawRainState(true);
+        break;
+    }
   }
 }
 // window.addEventListener('resize', drawRainState);
@@ -192,76 +200,69 @@ function determinAutoRadius(dataSet = data, key = "population", padding = 2) {
 
 
 
-function drawRainState(inSteps = false) {
-  if (!inSteps) {
-    data.forEach(country => {
-      // the dots positon on the stage is the raw 
-      // 1. shift position to positiv values; 2. scale the value to a the stagesSize
-      const xPosition = map(country.happynesScore, minHappynesScore, maxHappynesScore, 0 + 20, stage.innerWidth() - 20);
-      
-      // the color displays the happynesScore
-      const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
-  
-      // create the div and 
-      let countryElement = $(`<div id="${country.countryName}"></div>`);
-      countryElement.addClass("rainCountry");
-      countryElement.css({
-        width: 1,
-        height: 5,
-        left: xPosition,
-        top: 100,
-        "background-color": color,
-      });
-  
-      stage.append(countryElement);
-  
-    });
+
+// an array filled with all timeOuts, set in this Rain state, to kill them
+let timeOuts = [];
+
+const killTimeOuts = () => {
+  while(timeOuts.length !== 0) {
+    clearTimeout(timeOuts[0]);
+    timeOuts.shift();
   }
+};
 
+function drawRainState() {
+  data = sortFor("happynesScore");
+
+  const padding = 20;
+
+  const xMax = stage.innerWidth();
   
-  if (inSteps) {
-    
-    data = sortFor("happynesScore");
-
-    const padding = 20;
-
-    const xMax = stage.innerWidth();
-
-    for (let a = 0; a < data.length; a++) {
-      // the color displays the happynesScore
-      const country = data[a];
-
-      const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
-
-      // create the div
-      let countryElement = $(`<div id="${country.countryName}"></div>`);
-      countryElement.addClass("rainCountry");
-      countryElement.css({
-        width: 8,
-        height: 8,
-        left: ((xMax - 2 * padding) / data.length * a) + padding - 4, // -4 = width / 2
-        top: 100,
-        "background-color": color,
-      });
   
-      stage.append(countryElement);
 
-      // the intervall in wich the drops will appear
-      const dropTime = map(country.suicideRate, minSuicideRate, maxSuicideRate, 10000, 1000);
+  for (let a = 0; a < data.length; a++) {
+    // the color displays the happynesScore
+    const country = data[a];
 
-      setTimeout(() => { // this first timeout makes it appear, as if the rain is just starting: very cool
-        newRainDrop({x: ((xMax - 2 * padding) / data.length * a) + padding, y: 100}, dropTime);
-      }, (Math.random() * 10000)); // the first timeout is a random timespan between one and 10 seconds
-    }
+    const color = getColor(country.happynesScore, minHappynesScore, maxHappynesScore);
+
+    // create the div
+    let countryElement = $(`<div id="${country.countryName}"></div>`);
+    countryElement.addClass("rainCountry");
+    countryElement.css({
+      width: 8,
+      height: 8,
+      left: ((xMax - 2 * padding) / data.length * a) + padding - 4, // -4 = width / 2
+      top: 100,
+      "background-color": color,
+    });
+
+    stage.append(countryElement);
+
+    // the intervall in wich the drops will appear
+    const dropTime = map(country.suicideRate, minSuicideRate, maxSuicideRate, 10000, 1000);
+
+    const timeOutId =  setTimeout(() => { // this first timeout makes it appear, as if the rain is just starting: very cool
+      newRainDrop({x: ((xMax - 2 * padding) / data.length * a) + padding, y: 100}, dropTime);
+    }, (Math.random() * 10000)); // the first timeout is a random timespan between one and 10 seconds
+
+    timeOuts.push(timeOutId);
   }
 }
 
 
 function newRainDrop(startPos, dropTime) {
+  // if the state has been changed, stop this function
+  if (state !== "suicide") {
+    killTimeOuts();
+    return;
+  }
 
-  setTimeout(() => {
+  const timeOutId = setTimeout(() => {
     newRainDrop({x: startPos.x, y: startPos.y}, dropTime);
   }, dropTime);
+
+  timeOuts.push(timeOutId);
   
   let rainDrop = $(`<div></div>`);
   rainDrop.addClass("rainDrop");
@@ -299,13 +300,8 @@ function newRainDrop(startPos, dropTime) {
 
 
   let start, previousTimeStamp;
-
-
-  window.requestAnimationFrame(dropRainDrop);
   
-  
-  function dropRainDrop(timestamp) {
-    // init
+  const animateRainDrop = (timestamp) => {
     if (start === undefined) start = timestamp;
   
     // animation Progress
@@ -317,7 +313,7 @@ function newRainDrop(startPos, dropTime) {
       const speed = time * 0.001;
       
       rainDrop.css({
-        top: Math.min(startPos.y + time * speed, stage.innerHeight() - Math.round(2 + 12 * speed)), // 200 = maximal endPos,
+        top: Math.min(startPos.y + time * speed, stage.innerHeight() - Math.round(2 + 12 * speed)),
         height: Math.round(2 + 12 * speed),
       });
 
@@ -331,21 +327,20 @@ function newRainDrop(startPos, dropTime) {
       });
     }
 
-
-    
-
     // Repeat the animation as long as time is 
     if (time < 1050) {
       previousTimeStamp = timestamp;
-      window.requestAnimationFrame(dropRainDrop);
-    } else if (1050 <= time && time <= 2000) { 
+      window.requestAnimationFrame(animateRainDrop);
+    } else if (1050 <= time && time <= 2000) {
       rainDrop.remove();
-      window.requestAnimationFrame(dropRainDrop);
+      window.requestAnimationFrame(animateRainDrop);
     } else { // if the animation is fullfilled delete the element
       rainDropShadow.remove();
       countryOpac.remove();
     }
-  }
+  };
+  
+  window.requestAnimationFrame(animateRainDrop);
 }
 
 function atheisticState(params) {
