@@ -34,6 +34,8 @@ body {
   border-radius: 100%;
   background-color: white;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+
+  transition: width 500ms, height 500ms, left 500ms, top 500ms;
 }
 
 .rainCountry {
@@ -67,13 +69,16 @@ body {
 #gui input {
   height: auto;
   margin: 0px;
-  width: 50%;
+  width: 100%;
   appearance: none;
   height: 25px; /* Specified height */
   background: #d3d3d3; /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
   transition: opacity .2s;
+}
+#gui span {
+  color:rgb(129, 129, 129);
 }
 
 .tab {
