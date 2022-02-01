@@ -35,7 +35,7 @@ body {
   background-color: white;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
 
-  transition: width 500ms, height 500ms, left 500ms, top 500ms;
+  transition: width 500ms, height 500ms, left 500ms, top 500ms, background-color 500ms;
 }
 
 .rainCountry {
@@ -64,23 +64,45 @@ body {
   position: absolute;
   left: 0;
   top: 0;
-  width: 300px;
+  width: 400px;
+  height: 200px;
+  z-index: 0;
+  padding: 10px;
+  padding-top: 40px;
 }
 #gui input {
   height: auto;
   margin: 0px;
-  width: 100%;
+  width: 50%;
   appearance: none;
   height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
+  background: #919191; /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
   transition: opacity .2s;
 }
 #gui span {
-  color:rgb(129, 129, 129);
+  font-weight: 500;
 }
 
 .tab {
   margin: 10px;
+  font-family:Arial, Helvetica, sans-serif;
+  font-weight: 300;
+  font-size: small;
+  height: 100px;
+  color: #919191;
+}
+
+#countryNameLabel {
+  position: absolute;
+  width: 100%;
+  top: 50px;
+  font-family:Arial, Helvetica, sans-serif;
+  text-align: center;
+  font-weight: bold;
+  font-size: larger;
+  transition: color .5s;
+  color: #282828;
+  height: auto;
 }

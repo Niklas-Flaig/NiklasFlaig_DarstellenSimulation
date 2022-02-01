@@ -49,17 +49,11 @@ function sliders() {
 
 function tabs() {
   let worldMap = $(`<a id="worldSwitcher" class="tab">Map</a>`);
-  let atheistic = $(`<a id="atheisticSwitcher" class="tab">Atheistic</a>`);
-  let suicide = $(`<a id="suicideSwitcher" class="tab">suicide</a>`);
-  
+  let atheistic = $(`<a id="atheisticSwitcher" class="tab">Atheistic Population split</a>`);
+  let suicide = $(`<a id="suicideSwitcher" class="tab">Suicide Rates</a>`);
   worldMap.css({
-
-  });
-  atheistic.css({
-
-  });
-  suicide.css({
-
+    color: "#FFF",
+    "font-weight": "bold",
   });
 
   gui.append(worldMap);
@@ -70,14 +64,50 @@ function tabs() {
   /* listeners */
   document.querySelector("#worldSwitcher").addEventListener("click", () => {
     render("worldMap");
+    worldMap.css({
+      color: "#FFF",
+      "font-weight": "bold",
+    });
+    atheistic.css({
+      color: "#919191",
+      "font-weight": 300,
+    });
+    suicide.css({
+      color: "#919191",
+      "font-weight": 300,
+    });
   });
 
   document.querySelector("#atheisticSwitcher").addEventListener("click", () => {
     render("atheistic");
+    worldMap.css({
+      color: "#919191",
+      "font-weight": 300,
+    });
+    atheistic.css({
+      color: "#FFF",
+      "font-weight": "bold",
+    });
+    suicide.css({
+      color: "#919191",
+      "font-weight": 300,
+    });
   });
 
   document.querySelector("#suicideSwitcher").addEventListener("click", () => {
     render("suicide");
+    worldMap.css({
+      color: "#919191",
+      "font-weight": 300,
+    });
+    atheistic.css({
+      color: "#919191",
+      "font-weight": 300,
+    });
+    suicide.css({
+      color: "#FFF",
+      "font-weight": "bold",
+    });
   });
   
 

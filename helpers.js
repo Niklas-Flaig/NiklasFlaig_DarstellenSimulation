@@ -137,3 +137,33 @@ function filterData(key, rangeStart = 0, rangeEnd = 100) {
   }
   return newData;
 }
+
+
+function reColorAllElements (array, label) {
+  array.forEach(element => {
+    element.css({
+      "background-color": element.color,
+    });
+    label.css({
+      "color": "#282828",
+    });
+  });
+}
+
+
+function greyenElements (array, exception, label)  {
+  array.forEach(element => {
+    element.css({
+      "background-color": "#484848",
+    });
+    if (element.countryName === exception) {
+      element.css({
+        "background-color": element.color,
+      });
+      label.css({
+        "color": element.color,
+      });
+      document.getElementById("countryNameLabel").innerHTML = element.countryName;
+    }
+  });
+}

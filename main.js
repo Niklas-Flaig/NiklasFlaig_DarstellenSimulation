@@ -68,6 +68,11 @@ function drawMapState(autoArea = true) {
 
   let countrys = [];
 
+  // a label
+  let label = $(`<div id="countryNameLabel"></div>`);
+  stage.append(label);
+
+    
   data.forEach(country => {
     // create the div and 
     let element = $(`<div id="${country.countryName}"></div>`);
@@ -88,16 +93,24 @@ function drawMapState(autoArea = true) {
       height: element.radius * 2,
       left: element.xPos - element.radius,
       top: element.yPos - element.radius,
+      "z-index": 2,
       "background-color": element.color,
     });
 
     stage.append(element);
 
+    element.mouseover(() => {
+      greyenElements(countrys, element.countryName, label);
+    });
+    element.mouseout(() => {
+      reColorAllElements(countrys, label);
+    });
+
     countrys.push(element);
   });
-  
+
   // call this to update the map
-  const reRender = (min = 0, max = 100) => {
+  function reRender (min = 0, max = 100) {
     const newDataSet = filterData("population", min, max);
     // we get a new dataSet, its filtered and can be used to
     // first determine a new maxRadius, and to determine all countrys that shouldnt be rendered anymore
@@ -119,8 +132,7 @@ function drawMapState(autoArea = true) {
         "top": element.yPos - element.radius,
       });
     });
-  };
-
+  }
 
   // let slider = $(`<input id="slider" type="range" min="0" max="100" value="100">`);
   // let sliderOutPut = $((`<span id="sliderField"></span>`));
@@ -140,24 +152,6 @@ function drawMapState(autoArea = true) {
   // slidingTool.addEventListener("mouseup", () => {
   //   reRender(0, slidingTool.value);
   // });
-
-
-
-
-  //     countryCircle.data(data[i]);
-
-    //     countryCircle.mouseover(function () {
-    //         countryCircle.addClass("highlight");
-    //         label.text(countryCircle.data().countryName);
-    //     });
-
-    //     countryCircle.mouseout(function () {
-    //        // countryCircle.removeClass("highlight");
-    //         countryCircle.addClass("no-highlight-anymore");
-    //     });
-
-    //     stage.append(countryCircle);
-    // }
 }
 
 // still has some problems e.g.Niger and Nigeria
@@ -218,7 +212,12 @@ function drawRainState() {
 
   const xMax = stage.innerWidth();
   
-  
+  let countrys = [];
+
+  // a label
+  let label = $(`<div id="countryNameLabel"></div>`);
+  stage.append(label);
+
 
   for (let a = 0; a < data.length; a++) {
     // the color displays the happynesScore
@@ -228,14 +227,19 @@ function drawRainState() {
 
     // create the div
     let countryElement = $(`<div id="${country.countryName}"></div>`);
-    countryElement.addClass("rainCountry");
+    countryElement.addClass("country");
     countryElement.css({
       width: 8,
       height: 8,
       left: ((xMax - 2 * padding) / data.length * a) + padding - 4, // -4 = width / 2
       top: 100,
+      "z-index": 9,
+
       "background-color": color,
     });
+
+    countryElement.countryName = country.countryName;
+    countryElement.color = color;
 
     stage.append(countryElement);
 
@@ -247,7 +251,18 @@ function drawRainState() {
     }, (Math.random() * 10000)); // the first timeout is a random timespan between one and 10 seconds
 
     timeOuts.push(timeOutId);
+
+    countrys.push(countryElement);
+    
   }
+  countrys.forEach(countryElement => {
+    countryElement.mouseover(() => {
+      greyenElements(countrys, countryElement.countryName, label);
+    });
+    countryElement.mouseout(() => {
+      reColorAllElements(countrys, label);
+    });
+  });
 }
 
 
@@ -271,6 +286,7 @@ function newRainDrop(startPos, dropTime) {
     height: 2,
     left: startPos.x - 2,
     top: startPos.y,
+    "z-index": 5,
     "background-color": "black",
   });
   stage.append(rainDrop);
@@ -282,6 +298,7 @@ function newRainDrop(startPos, dropTime) {
     height: 2,
     left: startPos.x - 2,
     top: startPos.y,
+    "z-index": 4,
     "background-color": "gray"
   });
   stage.append(rainDropShadow);
@@ -293,6 +310,7 @@ function newRainDrop(startPos, dropTime) {
       height: 8,
       left: startPos.x - 4, // -4 = width / 2
       top: 100,
+      "z-index": 10,
       "background-color": "#181818",
   });
   stage.append(countryOpac);
@@ -348,6 +366,11 @@ function atheisticState(params) {
 
   let lefts = [], rights = [];
 
+  
+  // a label
+  let label = $(`<div id="countryNameLabel"></div>`);
+  stage.append(label);
+
   /* create two elements for each country
       one goes to the right (symbols the non-atheistic part of the countrys Population)
       the other to the left (symbols the atheistic part)
@@ -382,6 +405,7 @@ function atheisticState(params) {
       height: 0,
       left: elementLeft.xPos,
       top: elementLeft.yPos,
+      "z-index": 1,
       "background-color": elementLeft.color,
     });
 
@@ -405,6 +429,7 @@ function atheisticState(params) {
       height: 0,
       left: elementLeft.xPos,
       top: elementRigt.yPos,
+      "z-index": 1,
       "background-color": elementRigt.color,
     });
 
@@ -463,33 +488,91 @@ function atheisticState(params) {
       if (madeChanges) b = 0;
     }
   }
-  
-  lefts.forEach(element => {
-    let newElem = $(`<div id="${element.countryName}_Left"></div>`);
-    newElem.addClass("country");
 
-    newElem.css({
+
+  
+  const reColorAllElements = () => {
+    // remove the label
+
+    lefts.forEach(element => {
+      element.css({
+        "background-color": element.color,
+      });
+    });
+    rights.forEach(element => {
+      element.css({
+        "background-color": element.color,
+      });
+    });
+
+    label.css({
+      "color": "#282828",
+    });
+  };
+
+  const greyenElements = (exception) => {
+    lefts.forEach(element => {
+      element.css({
+        "background-color": "#484848",
+      });
+      if (element.countryName === exception) {
+        element.css({
+          "background-color": element.color,
+        });
+        label.css({
+          "color": element.color,
+          top: element.yPos - 11,
+        });
+        document.getElementById("countryNameLabel").innerHTML = element.countryName;
+      }
+    });
+    rights.forEach(element => {
+      element.css({
+        "background-color": "#484848",
+      });
+      if (element.countryName === exception) element.css({
+        "background-color": element.color,
+      });
+    });
+  };
+
+
+  lefts.forEach(element => {
+    element.css({
       width: 2 * element.radius,
       height: 2 * element.radius,
       left: element.xPos - element.radius,
       top: element.yPos - element.radius,
       "background-color": element.color,
     });
-    stage.append(newElem);
+    
+    element.mouseover(() => {
+      greyenElements(element.countryName);
+    });
+    element.mouseout(() => {
+      reColorAllElements();
+    });
+
+    stage.append(element);
   });
   
   rights.forEach(element => {
-    let newElem = $(`<div id="${element.countryName}_Rigt"></div>`);
-    newElem.addClass("country");
-
-    newElem.css({
+    element.css({
       width: 2 * element.radius,
       height: 2 * element.radius,
       left: element.xPos - element.radius,
       top: element.yPos - element.radius,
       "background-color": element.color,
     });
-    stage.append(newElem);
+
+    element.mouseover(() => {
+      greyenElements(element.countryName);
+    });
+    element.mouseout(() => {
+      reColorAllElements();
+    });
+
+    stage.append(element);
   });
 }
 
