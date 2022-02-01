@@ -1,13 +1,12 @@
 let gui = $("#gui");
 
 function userInter() {
-  sliders();
   tabs();
 }
 
 function sliders() {
-  let sliderLow = $(`<input id="lowerSlider" type="range" min="0" max="49" value="0" id="myRange">`);
-  let sliderUp = $(`<input id="upperSlider" type="range" min="50" max="100" value="100" id="myRange">`);
+  let sliderLow = $(`<input id="lowerSlider" type="range" min="0" max="49" value="0">`);
+  let sliderUp = $(`<input id="upperSlider" type="range" min="50" max="100" value="100">`);
 
   gui.append(sliderLow);
   gui.append(sliderUp);
@@ -39,7 +38,7 @@ function sliders() {
   
   // reRenders the current state but with a new dataArray
   const reRender = () => {
-    data = filterData("population", parseFloat(sliderLeft.value), parseFloat(sliderRight.value));
+    data = filterData("happynesScore", parseFloat(sliderLeft.value), parseFloat(sliderRight.value));
     render("worldMap");
   };
 
